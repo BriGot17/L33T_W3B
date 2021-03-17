@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class L33TFrame extends ApplicationAdapter {
+public class L33T_Frame extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture img;
 	

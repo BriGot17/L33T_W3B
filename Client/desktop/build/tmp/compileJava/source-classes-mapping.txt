@@ -1,2 +1,0 @@
-at/brigot/l33t/desktop/DesktopLauncher.java
- at.brigot.l33t.desktop.DesktopLauncher
