@@ -1,4 +1,5 @@
 package at.brigot.l33t.bl;
+
 import java.io.*;
 import java.util.*;
 import java.net.*;
@@ -22,6 +23,7 @@ public class  ChatClient extends JFrame implements ActionListener {
         br = new BufferedReader( new InputStreamReader( client.getInputStream()) ) ;
         pw = new PrintWriter(client.getOutputStream(),true);
         pw.println(uname);  // send name to server
+        out.println("TEST");
         buildInterface();
         new MessagesThread().start();  // create thread to listen for messages
     }
@@ -56,6 +58,7 @@ public class  ChatClient extends JFrame implements ActionListener {
         } else {
             // send message to server
             pw.println(tfInput.getText());
+            tfInput.setText("");
         }
     }
 
@@ -64,7 +67,7 @@ public class  ChatClient extends JFrame implements ActionListener {
         // take username from user
         String name = JOptionPane.showInputDialog(null,"Enter your name :", "Username",
                 JOptionPane.PLAIN_MESSAGE);
-        String servername = "localhost";
+        String servername = "172.20.10.2";
         try {
             new ChatClient( name ,servername);
         } catch(Exception ex) {
