@@ -6,9 +6,9 @@ import java.util.*;
 import java.net.*;
 import static java.lang.System.out;
 public class  ChatServer {
-    Vector<String> users = new Vector<String>();
-    Vector<ClientThread> clients = new Vector<ClientThread>();
-    public void process() throws Exception  {
+    List<String> users = new Vector<>();
+    List<ClientThread> clients = new Vector<>();
+    public void startServer() throws Exception  {
         ServerSocket server = new ServerSocket(9999,10);
         out.println("Server Started...");
         while( true) {
@@ -26,11 +26,11 @@ public class  ChatServer {
         users.add(user);
     }
     public static void main(String ... args) throws Exception {
-        new ChatServer().process();
+        new ChatServer().startServer();
     } // end of main
     public void broadcast(String user, String message)  {
         // send message to all connected users
-        for ( ClientThread c : clients )
+        for (ClientThread c : clients)
             c.sendMessage(user,message);
     }
     
