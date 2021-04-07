@@ -69,7 +69,7 @@ public class  ChatClient extends JFrame implements ActionListener {
                 JOptionPane.PLAIN_MESSAGE);
         String servername = "172.20.10.2";
         try {
-            new ChatClient( name ,servername);
+            new ChatClient(name,servername);
         } catch(Exception ex) {
             out.println( "Error --> " + ex.getMessage());
         }
