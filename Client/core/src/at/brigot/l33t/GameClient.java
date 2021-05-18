@@ -1,5 +1,6 @@
 package at.brigot.l33t;
 
+import at.brigot.l33t.bl.GameCommandExecutor;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -54,6 +55,8 @@ public class GameClient extends ApplicationAdapter {
 		console.setSizePercent(100, 33);
 		console.setPositionPercent(0, 67);
 		console.setDisplayKeyID(Input.Keys.Z);
+
+		console.setCommandExecutor(new GameCommandExecutor(console));
 
 		gameWidth = stage.getWidth();
 		gameHeight = stage.getHeight();
