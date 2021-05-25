@@ -15,13 +15,15 @@ public class  ChatServer {
             Socket client = server.accept();
             ClientThread c = new ClientThread(client, this);
             clients.add(c);
-            initiateUserUpdate();
+            System.out.println(users.toString());
+            c.sendUserUpdate(users);
         }
     }
 
     public void removeClient(ClientThread client, String user){
         clients.remove(client);
         users.remove(user);
+        client.sendUserUpdate(users);
     }
     public void addUser(String user){
         users.add(user);
@@ -30,11 +32,6 @@ public class  ChatServer {
         new ChatServer().startServer();
     }
 
-    public void initiateUserUpdate(){
-        for (ClientThread c: clients) {
-            c.sendUserUpdate(users);
-        }
-    }
     public void broadcast(String user, String message)  {
         for (ClientThread c : clients)
             c.sendMessage(user,message);

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JSON_Parser {
 
@@ -52,7 +53,12 @@ public class JSON_Parser {
             currentUsernamesInChat.add(nodeIterator.next().toString());
         }
         String[] usernameArray = new String[currentUsernamesInChat.size()];
-        usernameArray = currentUsernamesInChat.toArray(usernameArray);
+        for (int i = 0; i< currentUsernamesInChat.size(); i++){
+            usernameArray[i] = currentUsernamesInChat.get(i);
+            usernameArray[i] = usernameArray[i].replace("\"", "");
+        }
+        System.out.println(currentUsernamesInChat);
+
         return usernameArray;
     }
 

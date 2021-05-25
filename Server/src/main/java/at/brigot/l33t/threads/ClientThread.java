@@ -23,8 +23,9 @@ public class  ClientThread extends Thread {
         output = new PrintWriter ( client.getOutputStream(),true);
         // read name
         name  = input.readLine();
-        json = JSONParser.getInstance();
+        System.out.println(name);
         server.addUser(name);
+        json = JSONParser.getInstance();
         start();
     }
     public void sendMessage(String uname,String  msg)  {

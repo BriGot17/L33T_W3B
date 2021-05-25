@@ -44,7 +44,7 @@ public class JSONParser {
         Path path = Paths.get(System.getProperty("user.dir"), "src", "main","java", "at", "brigot", "l33t", "res", "chatusers.json");
         JsonNode node = json.readTree(path.toFile());
         String jsonStr = node.toString();
-        String usersStr = "[";
+        String usersStr = "[\"klaus\",";
         for (int i = 0; i < users.size(); i++) {
             usersStr += "\"" + users.get(i) + "\"";
             if(!(i + 1 == users.size())){
@@ -52,7 +52,10 @@ public class JSONParser {
             }
         }
         usersStr += "]";
-        jsonStr = jsonStr.replace("[ ]", usersStr);
+        System.out.println(jsonStr);
+        System.out.println(usersStr);
+        jsonStr = jsonStr.replace("[]", usersStr);
+        System.out.println(jsonStr);
         return jsonStr;
     }
 
