@@ -1,21 +1,22 @@
-package at.brigot.l33t.bl;
+package at.brigot.l33t.server;
 
 // Chat Server runs at port no. 9999
-import java.io.*;
+import at.brigot.l33t.threads.ClientThread;
 import java.util.*;
 import java.net.*;
-import static java.lang.System.out;
+
 public class  ChatServer {
     List<String> users = new Vector<>();
     List<ClientThread> clients = new Vector<>();
     public void startServer() throws Exception  {
         ServerSocket server = new ServerSocket(9999,10);
-        out.println("Server Started...");
+        System.out.println("Chatserver started on port 9999");
         while( true) {
             Socket client = server.accept();
             ClientThread c = new ClientThread(client, this);
             clients.add(c);
-        }  // end of while
+            initiateUserUpdate();
+        }
     }
 
     public void removeClient(ClientThread client, String user){
@@ -27,11 +28,16 @@ public class  ChatServer {
     }
     public static void main(String ... args) throws Exception {
         new ChatServer().startServer();
-    } // end of main
+    }
+
+    public void initiateUserUpdate(){
+        for (ClientThread c: clients) {
+            c.sendUserUpdate(users);
+        }
+    }
     public void broadcast(String user, String message)  {
-        // send message to all connected users
         for (ClientThread c : clients)
             c.sendMessage(user,message);
     }
     
-} // end of Server
+}

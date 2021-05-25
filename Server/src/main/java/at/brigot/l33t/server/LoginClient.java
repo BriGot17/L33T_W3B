@@ -1,9 +1,4 @@
-package at.brigot.l33t.bl;
-
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Scanner;
+package at.brigot.l33t.server;
 
 public class LoginClient {
 
