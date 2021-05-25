@@ -296,7 +296,14 @@ public class GameClient extends ApplicationAdapter {
 			try {
 				while(true) {
 					line = br.readLine();
-					chat_label.setText(chat_label.getText() + line + "\n");
+					String[] lineParts = line.split(">");
+					if(lineParts[0].equals("json")){
+
+					}
+					else{
+						chat_label.setText(chat_label.getText() + line + "\n");
+					}
+
 				} // end of while
 			} catch(Exception ex) {}
 		}

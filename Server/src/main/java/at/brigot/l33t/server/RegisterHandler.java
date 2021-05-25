@@ -1,4 +1,4 @@
-package at.brigot.l33t.bl;
+package at.brigot.l33t.server;
 
 import at.brigot.l33t.beans.User;
 import com.sun.net.httpserver.HttpExchange;

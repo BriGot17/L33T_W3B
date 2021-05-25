@@ -1,12 +1,7 @@
-package at.brigot.l33t.bl;
+package at.brigot.l33t.server;
 
-import at.brigot.l33t.db.DB_Access;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
