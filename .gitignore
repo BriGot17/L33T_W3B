@@ -98,7 +98,8 @@ Server/.gradle/
 gradle-app.setting
 /build/
 /android/build/
-/core/build/
+Client/core/build/
+Client/.gradle
 /desktop/build/
 /html/build/
 /ios/build/
