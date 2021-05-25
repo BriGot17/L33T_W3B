@@ -15,6 +15,22 @@ import java.util.List;
 
 public class JSON_Parser {
 
+    private ObjectMapper objectMapper;
+    private JsonMapper json;
+    private static JSON_Parser instance;
+
+    public JSON_Parser() {
+        this.objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.json = new JsonMapper();
+    }
+
+    public static JSON_Parser getInstance(){
+        if(instance == null){
+            instance = new JSON_Parser();
+        }
+        return instance;
+    }
 
     /**
      * Method for parsing JSON String with current chat users to String
@@ -24,7 +40,7 @@ public class JSON_Parser {
      * @return A list of strings containing the usernames currently using the chat
      * @throws JsonProcessingException
      */
-    public List<String> readChatUsersFromString(String userJSON) throws JsonProcessingException {
+    public String[] readChatUsersFromString(String userJSON) throws JsonProcessingException {
         JsonNode node = json.readTree(userJSON);
         System.out.println(node.toPrettyString());
         node = node.get("users");
@@ -35,7 +51,9 @@ public class JSON_Parser {
         while(nodeIterator.hasNext()){
             currentUsernamesInChat.add(nodeIterator.next().toString());
         }
-        return currentUsernamesInChat;
+        String[] usernameArray = new String[currentUsernamesInChat.size()];
+        usernameArray = currentUsernamesInChat.toArray(usernameArray);
+        return usernameArray;
     }
 
     public static void main(String[] args) {

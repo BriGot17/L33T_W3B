@@ -1,6 +1,7 @@
 package at.brigot.l33t;
 
 import at.brigot.l33t.bl.GameCommandExecutor;
+import at.brigot.l33t.io.JSON_Parser;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -42,6 +43,8 @@ public class GameClient extends ApplicationAdapter {
 
 	private String username;
 
+	private JSON_Parser json_parser;
+
 	PrintWriter pw;
 	BufferedReader br;
 
@@ -50,6 +53,8 @@ public class GameClient extends ApplicationAdapter {
 		skin = new Skin(Gdx.files.internal("uiskin.json"));
 		stage = new Stage(new ScreenViewport());
 		Gdx.input.setInputProcessor(stage);
+
+		json_parser = JSON_Parser.getInstance();
 
 		console = new GUIConsole();
 		console.setSizePercent(100, 33);
@@ -122,7 +127,7 @@ public class GameClient extends ApplicationAdapter {
 					chatRoomTable.setVisible(true);
 
 					try {
-						socket = new Socket("10.151.71.83",9999);
+						socket = new Socket("localhost",9999);
 						br = new BufferedReader( new InputStreamReader( socket.getInputStream()) ) ;
 						pw = new PrintWriter(socket.getOutputStream(),true);
 						pw.println(username);  // send name to server
@@ -298,7 +303,7 @@ public class GameClient extends ApplicationAdapter {
 					line = br.readLine();
 					String[] lineParts = line.split(">");
 					if(lineParts[0].equals("json")){
-
+						users_list.setItems(json_parser.readChatUsersFromString(lineParts[1]));
 					}
 					else{
 						chat_label.setText(chat_label.getText() + line + "\n");

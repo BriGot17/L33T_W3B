@@ -43,7 +43,7 @@ public class JSONParser {
     public String parseChatUsersToJSONString(List<String> users) throws IOException {
         Path path = Paths.get(System.getProperty("user.dir"), "src", "main","java", "at", "brigot", "l33t", "res", "chatusers.json");
         JsonNode node = json.readTree(path.toFile());
-        String jsonStr = node.toPrettyString();
+        String jsonStr = node.toString();
         String usersStr = "[";
         for (int i = 0; i < users.size(); i++) {
             usersStr += "\"" + users.get(i) + "\"";
