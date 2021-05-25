@@ -57,6 +57,8 @@ project(":core") {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         implementation "com.strongjoshua:libgdx-inGameConsole:1.0.0"
-
+        implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
+        implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.11.3'
+        implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.3'
     }
 }
