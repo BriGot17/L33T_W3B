@@ -56,27 +56,7 @@ public class JSONParser {
         return jsonStr;
     }
 
-    /**
-     * Method for parsing JSON String with current chat users to String
-     *          NOT FOR IMPLEMENTATION ON SERVER SIDE
-     *          WILL GET TRANSFERRED TO CLIENT PROJECT
-     * @param userJSON Raw JSON string of usernames in chat
-     * @return A list of strings containing the usernames currently using the chat
-     * @throws JsonProcessingException
-     */
-    public List<String> readChatUsersFromString(String userJSON) throws JsonProcessingException {
-        JsonNode node = json.readTree(userJSON);
-        System.out.println(node.toPrettyString());
-        node = node.get("users");
-        List<String> currentUsernamesInChat = new ArrayList<>();
-            //Iterator --> basically the same as ResultSet when we were working with databases
-            // Works perfectly, as node.elements() returns an Iterator of type JsonNode
-        Iterator<JsonNode> nodeIterator = node.elements();
-        while(nodeIterator.hasNext()){
-            currentUsernamesInChat.add(nodeIterator.next().toString());
-        }
-        return currentUsernamesInChat;
-    }
+
 
     public static void main(String[] args) {
         JSONParser json = JSONParser.getInstance();
@@ -85,7 +65,7 @@ public class JSONParser {
         test.add("test2");
         try {
             String userJSON = json.parseChatUsersToJSONString(test);
-            System.out.println(json.readChatUsersFromString(userJSON).toString());
+           // System.out.println(json.readChatUsersFromString(userJSON).toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
