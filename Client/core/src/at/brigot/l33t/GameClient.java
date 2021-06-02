@@ -18,10 +18,7 @@ import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
 import javafx.scene.control.Tab;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
@@ -45,6 +42,7 @@ public class GameClient extends ApplicationAdapter {
 
 	private JSON_Parser json_parser;
 
+	private InputStream socketInputStream;
 	PrintWriter pw;
 	BufferedReader br;
 
@@ -128,24 +126,20 @@ public class GameClient extends ApplicationAdapter {
 
 					try {
 						socket = new Socket("localhost",9999);
-						br = new BufferedReader( new InputStreamReader( socket.getInputStream()) ) ;
+						socketInputStream = socket.getInputStream();
+						br = new BufferedReader( new InputStreamReader(socketInputStream));
 						pw = new PrintWriter(socket.getOutputStream(),true);
 						pw.println(username);  // send name to server
-						//out.println("TEST");
+
 						new MessagesThread().start();
 					} catch (UnknownHostException e) {
 						e.printStackTrace();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-
-
 				}
 			}
 		});
-
-
-
 		return table;
 	}
 
@@ -285,10 +279,16 @@ public class GameClient extends ApplicationAdapter {
 
 				if(!text.isEmpty()){
 					//Text senden
-					pw.println(message_field.getText());
+					try {
+						String jsonMessage = json_parser.parseMessageToJSON(username, message_field.getText());
+						pw.println(jsonMessage);
+						pw.flush();
+					} catch (Exception e) {
+						e.printStackTrace();
+						out.println("Error reading or parsing message");
+					}
 					message_field.setText("");
 				}
-
 			}
 		});
 
@@ -297,20 +297,20 @@ public class GameClient extends ApplicationAdapter {
 
 	class  MessagesThread extends Thread {
 		public void run() {
-			String line;
 			try {
 				while(true) {
-					line = br.readLine();
-					String[] lineParts = line.split(">");
-					if(lineParts[0].equals("json")){
-						users_list.setItems(json_parser.readChatUsersFromString(lineParts[1]));
+					String jsonRaw = br.readLine();
+					String message = json_parser.parseToString(jsonRaw);
+					if(message.startsWith("mes_")){
+						chat_label.setText(chat_label.getText() + message.substring(4).replace("\"", "") + "\n");
 					}
 					else{
-						chat_label.setText(chat_label.getText() + line + "\n");
+						users_list.setItems(message.split(";"));
 					}
-
 				} // end of while
-			} catch(Exception ex) {}
+			} catch(Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 

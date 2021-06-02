@@ -8,33 +8,38 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.List;
 
-public class  ClientThread extends Thread {
+public class ClientThread extends Thread {
     String name = "";
     ChatServer server;
     BufferedReader input;
     PrintWriter output;
     JSONParser json;
+
     public ClientThread(Socket client, ChatServer server) throws Exception {
         // get input and output streams
         this.server = server;
-        input = new BufferedReader( new InputStreamReader( client.getInputStream())) ;
-        output = new PrintWriter ( client.getOutputStream(),true);
+        input = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        output = new PrintWriter(client.getOutputStream(), true);
         // read name
-        name  = input.readLine();
-        System.out.println(name);
+        name = input.readLine();
+
         server.addUser(name);
         json = JSONParser.getInstance();
         start();
     }
-    public void sendMessage(String uname,String  msg)  {
-        output.println( uname + ">" + msg);
+
+    public void sendMessage(String jsonMsg) {
+
+        output.println(jsonMsg);
     }
-    public void sendUserUpdate(List<String> usernames){
+
+    public void sendUserUpdate(List<String> usernames) {
         try {
             String userJSON = json.parseChatUsersToJSONString(usernames);
-            server.broadcast("json", userJSON);
+            server.broadcast(userJSON);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,20 +48,30 @@ public class  ClientThread extends Thread {
     public String getUserName() {
         return name;
     }
-    public void run()  {
+
+    public void run() {
         String line;
-        try    {
-            while(true)   {
+
+        while (true) {
+            try {
+
                 line = input.readLine();
-                if ( line.equals("end") ) {
-                    server.removeClient(this, name);
-                    break;
-                }
-                server.broadcast(name,line); // method  of outer class - send messages to all
+
+                server.broadcast(line); // method  of outer class - send messages to all
+
             } // end of while
-        } // try
-        catch(Exception ex) {
-            System.out.println(ex.getMessage());
+            // try
+            catch(SocketException ex){
+                if(ex.getMessage().equals("Connection reset")){
+                    server.removeClient(this, name);
+
+                }else{
+                    ex.printStackTrace();
+                }
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     } // end of run()
 } // end of inner class

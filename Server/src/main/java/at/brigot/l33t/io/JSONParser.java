@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class JSONParser {
 
     private ObjectMapper objectMapper;
     private JsonMapper json;
+    private Path chatMessagePath = Paths.get(System.getProperty("user.dir"), "src", "main","java", "at", "brigot", "l33t", "res", "chatmessage.json");
     private static JSONParser instance;
 
     private JSONParser(){
@@ -34,6 +36,20 @@ public class JSONParser {
         return instance;
     }
 
+    public String parseToString(String jsonRaw) throws IOException {
+        JsonNode node = json.readTree(chatMessagePath.toFile());
+        String jsonID = node.get("json_id").toString();
+
+        switch (jsonID){
+
+        }
+        return "";
+    }
+    public String parseToString(InputStream is) throws IOException {
+        JsonNode node = json.readTree(is);
+        return "";
+    }
+
     /**
      * Converts currently active usernames of users to JSON string which gets sent to client
      * @param users --> The list of usernames that should be converted to JSON
@@ -41,10 +57,9 @@ public class JSONParser {
      * @throws IOException
      */
     public String parseChatUsersToJSONString(List<String> users) throws IOException {
-        Path path = Paths.get(System.getProperty("user.dir"), "src", "main","java", "at", "brigot", "l33t", "res", "chatusers.json");
-        JsonNode node = json.readTree(path.toFile());
+        JsonNode node = json.readTree(chatMessagePath.toFile());
         String jsonStr = node.toString();
-        String usersStr = "[\"klaus\",";
+        String usersStr = "[";
         for (int i = 0; i < users.size(); i++) {
             usersStr += "\"" + users.get(i) + "\"";
             if(!(i + 1 == users.size())){
@@ -52,10 +67,8 @@ public class JSONParser {
             }
         }
         usersStr += "]";
-        System.out.println(jsonStr);
-        System.out.println(usersStr);
+        jsonStr = jsonStr.replace("pl1", "json");
         jsonStr = jsonStr.replace("[]", usersStr);
-        System.out.println(jsonStr);
         return jsonStr;
     }
 

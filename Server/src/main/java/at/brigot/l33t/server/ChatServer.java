@@ -11,11 +11,10 @@ public class  ChatServer {
     public void startServer() throws Exception  {
         ServerSocket server = new ServerSocket(9999,10);
         System.out.println("Chatserver started on port 9999");
-        while( true) {
+        while(true) {
             Socket client = server.accept();
             ClientThread c = new ClientThread(client, this);
             clients.add(c);
-            System.out.println(users.toString());
             c.sendUserUpdate(users);
         }
     }
@@ -28,13 +27,13 @@ public class  ChatServer {
     public void addUser(String user){
         users.add(user);
     }
+
+    public void broadcast(String jsonMessage)  {
+        for (ClientThread c : clients)
+            c.sendMessage(jsonMessage);
+    }
+
     public static void main(String ... args) throws Exception {
         new ChatServer().startServer();
     }
-
-    public void broadcast(String user, String message)  {
-        for (ClientThread c : clients)
-            c.sendMessage(user,message);
-    }
-    
 }
