@@ -1,6 +1,9 @@
 package at.brigot.l33t.io;
 
+import at.brigot.l33t.beans.Login;
+import at.brigot.l33t.beans.LoginResponse;
 import at.brigot.l33t.beans.Node;
+import at.brigot.l33t.beans.NodeReq;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -96,11 +99,23 @@ public class JSON_Parser {
     public static void main(String[] args) {
         JsonMapper mapper = new JsonMapper();
         JsonNode node = null;
+        JsonNode login = null;
+        JsonNode loginRes = null;
+        JsonNode nodeReq = null;
         try {
             node = mapper.readTree(new File("C:/Users/Admin/Desktop/Schule/L33T_W3B/Client/core/src/at/brigot/l33t/res/json_templates/node.json"));
+            login = mapper.readTree(new File("C:/Users/Admin/Desktop/Schule/L33T_W3B/Client/core/src/at/brigot/l33t/res/json_templates/login.json"));
+            loginRes = mapper.readTree(new File("C:/Users/Admin/Desktop/Schule/L33T_W3B/Client/core/src/at/brigot/l33t/res/json_templates/loginresponse.json"));
+            nodeReq = mapper.readTree(new File("C:/Users/Admin/Desktop/Schule/L33T_W3B/Client/core/src/at/brigot/l33t/res/json_templates/node_req.json"));
         } catch (IOException e) {
             e.printStackTrace();
         }
+        NodeReq nr = new NodeReq(nodeReq);
+        System.out.println(nr);
+        LoginResponse lr = new LoginResponse(loginRes);
+        System.out.println(lr);
+        Login l = new Login(login);
+        System.out.println(l);
         Node n = new Node(node);
         System.out.println(n);
     }
