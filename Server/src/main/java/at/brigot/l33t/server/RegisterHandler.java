@@ -1,14 +1,17 @@
 package at.brigot.l33t.server;
 
 import at.brigot.l33t.beans.User;
+import at.brigot.l33t.io.JSONParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 public class RegisterHandler implements HttpHandler {
 
+    private JSONParser json;
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         User newUser = null;
@@ -19,6 +22,9 @@ public class RegisterHandler implements HttpHandler {
 
     }
 
+    public RegisterHandler(){
+        json = JSONParser.getInstance();
+    }
 
     private User handleRegisterRequest(HttpExchange httpExchange){
         String rawString = httpExchange.getRequestURI().toString();
@@ -31,14 +37,20 @@ public class RegisterHandler implements HttpHandler {
 
     private void handleResponse(HttpExchange httpExchange, User newUser)  throws  IOException {
         OutputStream outputStream = httpExchange.getResponseBody();
-        boolean dbResponse = false;
+        boolean response = false;
         //Database not yet implemented
         //This code is only temporary
         if(!newUser.getUsername().equals("admin")){
-            dbResponse = true;
+            response = true;
         }
 
-        if(dbResponse) {
+        String res = json.parseAuthResponseToJSON(response, true);
+        httpExchange.sendResponseHeaders(200, res.length());
+        outputStream.write(res.getBytes(StandardCharsets.UTF_8));
+        outputStream.flush();
+        outputStream.close();
+
+        if(response) {
             httpExchange.sendResponseHeaders(200, "User created".length());
             outputStream.write("user created".getBytes());
         }else{

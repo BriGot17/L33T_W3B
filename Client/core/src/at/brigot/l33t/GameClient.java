@@ -305,7 +305,9 @@ public class GameClient extends ApplicationAdapter {
 					}
 
 				} // end of while
-			} catch(Exception ex) {}
+			} catch(Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 

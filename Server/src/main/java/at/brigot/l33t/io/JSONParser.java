@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 public class JSONParser {
 
@@ -78,17 +79,36 @@ public class JSONParser {
         return currentUsernamesInChat;
     }
 
+    public String parseAuthResponseToJSON(Boolean success, Boolean isRegister) throws IOException {
+        Path path = Paths.get(System.getProperty("user.dir"), "src", "main","java", "at", "brigot", "l33t", "res", "loginresponse.json");
+        JsonNode node = json.readTree(path.toFile());
+        String jsonStr = node.toString();
+
+        if(success){
+
+            jsonStr = jsonStr.replace("pl1", UUID.randomUUID().toString().substring(1,10));
+            if(isRegister)
+                jsonStr = jsonStr.replace("pl2", "register successful");
+            else
+                jsonStr = jsonStr.replace("pl2", "success");
+        }
+        else{
+            jsonStr = jsonStr.replace("pl1", "");
+            jsonStr = jsonStr.replace("pl2", "denied");
+        }
+
+        return jsonStr;
+    }
+
     public static void main(String[] args) {
         JSONParser json = JSONParser.getInstance();
-        List<String> test = new ArrayList<>();
-        test.add("test1");
-        test.add("test2");
+        /*
         try {
-            String userJSON = json.parseChatUsersToJSONString(test);
-            System.out.println(json.readChatUsersFromString(userJSON).toString());
+            System.out.println(json.parseAuthResponseToJSON(true));
+            System.out.println(json.parseAuthResponseToJSON(false));
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
 }
