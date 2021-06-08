@@ -1,6 +1,7 @@
 package at.brigot.l33t.server;
 
 import at.brigot.l33t.beans.User;
+import at.brigot.l33t.db.DB_Access;
 import at.brigot.l33t.io.JSONParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -8,13 +9,15 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 
 public class LoginHandler implements HttpHandler {
 
     private JSONParser json;
-
+    private DB_Access dba;
     public LoginHandler(){
         json = JSONParser.getInstance();
+        dba = DB_Access.getInstance();
     }
 
     @Override
@@ -41,11 +44,15 @@ public class LoginHandler implements HttpHandler {
         boolean response = false;
         //Database authentication not yet implemented
         //Temporarily, a primitive authentication is used
-        if(attemptingUser.getUsername().equals("admin")){
-            response = true;
+        try {
+            if(dba.validateUserLogin(attemptingUser)){
+                response = true;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
 
-        String res = json.parseAuthResponseToJSON(response, true);
+        String res = json.parseAuthResponseToJSON(response);
         httpExchange.sendResponseHeaders(200, res.length());
         outputStream.write(res.getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
