@@ -1,17 +1,21 @@
 package at.brigot.l33t.server;
 
 import at.brigot.l33t.beans.User;
+import at.brigot.l33t.db.DB_Access;
 import at.brigot.l33t.io.JSONParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 
 public class RegisterHandler implements HttpHandler {
 
     private JSONParser json;
+    private DB_Access dba;
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         User newUser = null;
@@ -24,6 +28,7 @@ public class RegisterHandler implements HttpHandler {
 
     public RegisterHandler(){
         json = JSONParser.getInstance();
+        dba = DB_Access.getInstance();
     }
 
     private User handleRegisterRequest(HttpExchange httpExchange){
@@ -37,14 +42,21 @@ public class RegisterHandler implements HttpHandler {
 
     private void handleResponse(HttpExchange httpExchange, User newUser)  throws  IOException {
         OutputStream outputStream = httpExchange.getResponseBody();
-        boolean response = false;
+        boolean response = true;
         //Database not yet implemented
         //This code is only temporary
-        if(!newUser.getUsername().equals("admin")){
-            response = true;
+        try{
+            dba.insertNewUser(newUser);
+        }
+        catch(PSQLException ex){
+            response = false;
+        } catch (SQLException throwables) {
+            response = false;
+            throwables.printStackTrace();
         }
 
-        String res = json.parseAuthResponseToJSON(response, true);
+
+        String res = json.parseRegisterToJSON(response);
         httpExchange.sendResponseHeaders(200, res.length());
         outputStream.write(res.getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
