@@ -1,5 +1,5 @@
 buildscript {
-    
+
 
     repositories {
         mavenLocal()
@@ -15,7 +15,6 @@ buildscript {
 
 allprojects {
     apply plugin: "eclipse"
-
     version = '1.0'
     ext {
         appName = "Client"
@@ -51,7 +50,6 @@ project(":desktop") {
 
 project(":core") {
     apply plugin: "java-library"
-
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"

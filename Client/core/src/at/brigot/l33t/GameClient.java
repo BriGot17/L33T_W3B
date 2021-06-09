@@ -1,6 +1,8 @@
 package at.brigot.l33t;
 
+import at.brigot.l33t.beans.Node;
 import at.brigot.l33t.bl.GameCommandExecutor;
+import at.brigot.l33t.io.JSON_Parser;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -17,13 +19,12 @@ import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
 import javafx.scene.control.Tab;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.lang.System.out;
 
@@ -35,13 +36,18 @@ public class GameClient extends ApplicationAdapter {
 	private float gameHeight;
 
 	private Table loginTable, chatRoomTable, fileSystemTable, commandLineTable;
-
 	private Console console;
 
 	private Socket socket;
+	private String sid;
 
+	private Node Filesystem;
+	private Map<String,String> possibleHosts = new HashMap<>();
 	private String username;
 
+	private JSON_Parser json_parser;
+
+	private InputStream socketInputStream;
 	PrintWriter pw;
 	BufferedReader br;
 
@@ -50,6 +56,8 @@ public class GameClient extends ApplicationAdapter {
 		skin = new Skin(Gdx.files.internal("uiskin.json"));
 		stage = new Stage(new ScreenViewport());
 		Gdx.input.setInputProcessor(stage);
+
+		json_parser = JSON_Parser.getInstance();
 
 		console = new GUIConsole();
 		console.setSizePercent(100, 33);
@@ -122,25 +130,21 @@ public class GameClient extends ApplicationAdapter {
 					chatRoomTable.setVisible(true);
 
 					try {
-						socket = new Socket("10.151.71.83",9999);
-						br = new BufferedReader( new InputStreamReader( socket.getInputStream()) ) ;
+						socket = new Socket("localhost",9999);
+						socketInputStream = socket.getInputStream();
+						br = new BufferedReader( new InputStreamReader(socketInputStream));
 						pw = new PrintWriter(socket.getOutputStream(),true);
 						pw.println(username);  // send name to server
-						//out.println("TEST");
+
 						new MessagesThread().start();
 					} catch (UnknownHostException e) {
 						e.printStackTrace();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-
-
 				}
 			}
 		});
-
-
-
 		return table;
 	}
 
@@ -280,10 +284,16 @@ public class GameClient extends ApplicationAdapter {
 
 				if(!text.isEmpty()){
 					//Text senden
-					pw.println(message_field.getText());
+					try {
+						String jsonMessage = json_parser.parseMessageToJSON(username, message_field.getText());
+						pw.println(jsonMessage);
+						pw.flush();
+					} catch (Exception e) {
+						e.printStackTrace();
+						out.println("Error reading or parsing message");
+					}
 					message_field.setText("");
 				}
-
 			}
 		});
 
@@ -292,23 +302,28 @@ public class GameClient extends ApplicationAdapter {
 
 	class  MessagesThread extends Thread {
 		public void run() {
-			String line;
 			try {
 				while(true) {
-					line = br.readLine();
-					String[] lineParts = line.split(">");
-					if(lineParts[0].equals("json")){
-
+					String jsonRaw = br.readLine();
+					String message = json_parser.parseMessageToString(jsonRaw);
+					if(message.startsWith("mes_")){
+						chat_label.setText(chat_label.getText() + message.substring(4).replace("\"", "") + "\n");
 					}
 					else{
-						chat_label.setText(chat_label.getText() + line + "\n");
+						users_list.setItems(message.split(";"));
 					}
-
 				} // end of while
 			} catch(Exception ex) {
 				ex.printStackTrace();
 			}
 		}
+	}
+
+	public String getSid() {
+		return sid;
+	}
+	public void setSid(String sid) {
+		this.sid = sid;
 	}
 
 	@Override

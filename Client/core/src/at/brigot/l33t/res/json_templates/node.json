@@ -1,16 +1,13 @@
 {
-    "json_id" : "node_upd, node_get, node_push",
-    "sid" : "test",
-    "hostname" : "lul",
-    "ip" : "0.0.0.0",
+    "json_id" : "node_push",
+    "sid" : "pl1",
+    "hostname" : "pl2",
+    "ip" : "pl3",
     "filesystem" : {
         "root" : {
-            "att" : ["Webcry", "FTPoline"],
-            "def" : ["protNS", "FTPGuard"],
-            "lib" : {
-                "test.txt" : "Hey ich bin ein testobjekt",
-                "test2.txt" : "Hey ich bin ein 2. testobjekt"
-            }
+            "att" : ["pl4"],
+            "def" : ["pl5"],
+            "lib" : {"pl6":""}
         }
     }
 }

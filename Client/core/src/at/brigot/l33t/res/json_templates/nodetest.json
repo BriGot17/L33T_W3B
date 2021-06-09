@@ -1,0 +1,17 @@
+{
+  "json_id" : "node_push",
+  "sid" : "pl1",
+  "hostname" : "pl2",
+  "ip" : "pl3",
+  "filesystem" : {
+    "root" : {
+      "att" : ["Peter Attack","HAH"],
+      "def" : ["Peter Defense","HEH"],
+      "lib" : {
+        "test": "testing",
+        "hello": "I am here",
+        "secret doc": "noice secret"
+      }
+    }
+  }
+}
