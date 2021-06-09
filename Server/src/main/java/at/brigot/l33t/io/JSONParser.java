@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 public class JSONParser {
 
@@ -62,17 +63,37 @@ public class JSONParser {
 
 
 
-    public static void main(String[] args) {
-        JSONParser json = JSONParser.getInstance();
-        List<String> test = new ArrayList<>();
-        test.add("test1");
-        test.add("test2");
-        try {
-            String userJSON = json.parseChatUsersToJSONString(test);
-           // System.out.println(json.readChatUsersFromString(userJSON).toString());
-        } catch (IOException e) {
-            e.printStackTrace();
+    public String parseAuthResponseToJSON(Boolean success) throws IOException {
+        Path path = Paths.get(System.getProperty("user.dir"), "src", "main","java", "at", "brigot", "l33t", "res", "loginresponse.json");
+        JsonNode node = json.readTree(path.toFile());
+        String jsonStr = node.toString();
+
+        if(success){
+            jsonStr = jsonStr.replace("pl1", UUID.randomUUID().toString().substring(1,10));
+            jsonStr = jsonStr.replace("pl2", "success");
         }
+        else{
+            jsonStr = jsonStr.replace("pl1", "");
+            jsonStr = jsonStr.replace("pl2", "denied");
+        }
+
+        return jsonStr;
     }
 
+    public String parseRegisterToJSON(Boolean isPossible) throws IOException {
+        Path path = Paths.get(System.getProperty("user.dir"), "src", "main","java", "at", "brigot", "l33t", "res", "loginresponse.json");
+        JsonNode node = json.readTree(path.toFile());
+        String jsonStr = node.toString();
+
+        if(isPossible){
+            jsonStr = jsonStr.replace("pl1", UUID.randomUUID().toString().substring(1,10));
+            jsonStr = jsonStr.replace("pl2", "user created");
+        }
+        else{
+            jsonStr = jsonStr.replace("pl1", "");
+            jsonStr = jsonStr.replace("pl2", "user exists");
+        }
+
+        return jsonStr;
+    }
 }
