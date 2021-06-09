@@ -12,12 +12,9 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class JSON_Parser {
 
@@ -25,6 +22,10 @@ public class JSON_Parser {
     private JsonMapper json;
     private static JSON_Parser instance;
     private Path chatMessagePath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "chatmessage.json");
+    private Path loginPath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "login.json");
+    private Path nodeReqPath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "node_req.json");
+    private Path nodePath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "node.json");
+
     public JSON_Parser() {
         this.objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -46,8 +47,8 @@ public class JSON_Parser {
         return jsonStr;
     }
 
-    public String parseToString(String is ) throws IOException {
-        JsonNode node = json.readTree(is);
+    public String parseMessageToString(String message) throws IOException {
+        JsonNode node = json.readTree(message);
         String jsonID = node.get("json_id").toString().replace("\"", "");
 
         switch(jsonID){
@@ -96,28 +97,141 @@ public class JSON_Parser {
         return usersconcat;
     }
 
+    /**
+     * Method for parsing the Login Credentials to JSON to send to the Server
+     * @param user -> the Username of the User which is used for login
+     * @param pwhash -> the hash of the inputted password for login
+     * @return jsonStr -> the JSON String which is sent to the Server for Login
+     * @throws IOException
+     */
+    public String parseLoginToJSON(String user, String pwhash) throws IOException{
+        JsonNode node = json.readTree(loginPath.toFile());
+        String jsonStr = node.toString();
+        jsonStr = jsonStr.replace("pl1","login"); //JsonID
+        jsonStr = jsonStr.replace("pl2",user); //Username
+        jsonStr = jsonStr.replace("pl3",""); //E-Mail
+        jsonStr = jsonStr.replace("pl4",pwhash); //PwHash
+        return jsonStr;
+    }
+
+    /**
+     * Method for parsing the Register information to JSON to send to the Server
+     * @param user -> the Username of the User which is Displayed ingame and is later used for Login
+     * @param email -> the email of the User which is used for creating the account
+     * @param pwhash -> the pwhash of the password the user wants to have
+     * @return jsonStr -> the JSON String which is sent to the Server for Register
+     * @throws IOException
+     */
+    public String parseRegisterToJSON(String user,String email,String pwhash) throws IOException{
+        JsonNode node = json.readTree(loginPath.toFile());
+        String jsonStr = node.toString();
+        jsonStr = jsonStr.replace("pl1","register"); //JsonID
+        jsonStr = jsonStr.replace("pl2",user); //Username
+        jsonStr = jsonStr.replace("pl3",email); //E-Mail
+        jsonStr = jsonStr.replace("pl4",pwhash); //PwHash
+        return jsonStr;
+    }
+
+    /**
+     * Method for parsing the Login Response from the Server to String
+     * @param response -> the Response of the Server
+     * @return
+     * @throws IOException
+     */
+    public String parseLoginResponseToString(String response) throws IOException{
+        JsonNode node = json.readTree(response);
+        String sid = node.get("sid").asText();
+        String res = node.get("response").asText();
+        String Str = res + ":" + sid;
+        return Str;
+    }
+
+    public Node parseNodeFromJSON(JsonNode node){
+        return new Node(node);
+    }
+
+    public String parseNodeToJSON(Node node, String sid) throws IOException{
+        JsonNode jn = json.readTree(nodePath.toFile());
+        String jsonStr = jn.toString();
+        String temp = "";
+        jsonStr = jsonStr.replace("pl1", sid);
+        jsonStr = jsonStr.replace("pl2", node.getHostname());
+        jsonStr = jsonStr.replace("pl3", node.getIp());
+        temp = "";
+        Iterator it = node.getFilesystem().getAttacks().iterator();
+        temp += "\""+it.next()+"\"";
+        while(it.hasNext()){
+
+            temp += ",\""+it.next()+"\"";
+        }
+        System.out.println(temp);
+        jsonStr = jsonStr.replace("\"pl4\"", temp);
+        temp = "";
+        it = node.getFilesystem().getDefenses().iterator();
+        temp += "\""+it.next()+"\"";
+        while(it.hasNext()){
+
+            temp += ",\""+it.next()+"\"";
+        }
+        System.out.println(temp);
+        jsonStr = jsonStr.replace("\"pl5\"", temp);
+        jsonStr = jsonStr.replace("{\"pl6\":\"\"}", node.getFilesystem().getLib().toString().replace("=",":"));
+        return jsonStr;
+    }
+
+    public String parseNodeRequestToJSON(String ip, String sid) throws IOException{
+        JsonNode node = json.readTree(nodeReqPath.toFile());
+        String jsonStr = node.toString();
+        jsonStr = jsonStr.replace("pl1",ip); //IP
+        jsonStr =jsonStr.replace("pl2",sid); //SID
+        return jsonStr;
+    }
+
+    public Map<String,String> parseHostAnnounce(JsonNode node){
+        Map<String,String> possibleHosts = new HashMap<>();
+        String hosts = node.get("hosts").toString().replace("[","").replace("]","");
+        for (String s : hosts.split(",")) {
+            s = s.replace("{","").replace("}","").replace("\"","");
+            possibleHosts.put(s.split(":")[0],s.split(":")[1]);
+        }
+        return possibleHosts;
+    }
+
     public static void main(String[] args) {
         JsonMapper mapper = new JsonMapper();
         JsonNode node = null;
         JsonNode login = null;
         JsonNode loginRes = null;
         JsonNode nodeReq = null;
+        JsonNode hostAnn = null;
         try {
-            node = mapper.readTree(new File("C:/Users/Admin/Desktop/Schule/L33T_W3B/Client/core/src/at/brigot/l33t/res/json_templates/node.json"));
-            login = mapper.readTree(new File("C:/Users/Admin/Desktop/Schule/L33T_W3B/Client/core/src/at/brigot/l33t/res/json_templates/login.json"));
-            loginRes = mapper.readTree(new File("C:/Users/Admin/Desktop/Schule/L33T_W3B/Client/core/src/at/brigot/l33t/res/json_templates/loginresponse.json"));
-            nodeReq = mapper.readTree(new File("C:/Users/Admin/Desktop/Schule/L33T_W3B/Client/core/src/at/brigot/l33t/res/json_templates/node_req.json"));
+            node = mapper.readTree(Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "nodetest.json").toFile());
+            login = mapper.readTree(Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "login.json").toFile());
+            loginRes = mapper.readTree(Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "loginresponse.json").toFile());
+            nodeReq = mapper.readTree(Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "node_req.json").toFile());
+            hostAnn = mapper.readTree(Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "host_announce.json").toFile());
         } catch (IOException e) {
             e.printStackTrace();
         }
         NodeReq nr = new NodeReq(nodeReq);
-        System.out.println(nr);
+        //System.out.println(nr);
         LoginResponse lr = new LoginResponse(loginRes);
-        System.out.println(lr);
+        //System.out.println(lr);
         Login l = new Login(login);
-        System.out.println(l);
+        //System.out.println(l);
         Node n = new Node(node);
-        System.out.println(n);
+        String temp = "";
+        Iterator it = n.getFilesystem().getAttacks().iterator();
+        temp += "\""+it.next()+"\"";
+        while(it.hasNext()){
+            temp += ",\""+it.next()+"\"";
+        }
+        try {
+            System.out.println(getInstance().parseNodeToJSON(n,n.getSid()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(getInstance().parseHostAnnounce(hostAnn));
     }
 
 }

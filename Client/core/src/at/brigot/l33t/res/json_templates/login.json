@@ -1,6 +1,6 @@
 {
-    "json_id" : "register/login",
-    "username": "John Doe",
-    "email" : "john@doe.com",
-    "pwhash" : "aadcefeacd21341242acde562987"
+    "json_id" : "pl1",
+    "username": "pl2",
+    "email" : "pl3",
+    "pwhash" : "pl4"
  }

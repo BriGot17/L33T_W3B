@@ -1,5 +1,6 @@
 package at.brigot.l33t;
 
+import at.brigot.l33t.beans.Node;
 import at.brigot.l33t.bl.GameCommandExecutor;
 import at.brigot.l33t.io.JSON_Parser;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -22,6 +23,8 @@ import java.io.*;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.lang.System.out;
 
@@ -33,11 +36,13 @@ public class GameClient extends ApplicationAdapter {
 	private float gameHeight;
 
 	private Table loginTable, chatRoomTable, fileSystemTable, commandLineTable;
-
 	private Console console;
 
 	private Socket socket;
+	private String sid;
 
+	private Node Filesystem;
+	private Map<String,String> possibleHosts = new HashMap<>();
 	private String username;
 
 	private JSON_Parser json_parser;
@@ -300,7 +305,7 @@ public class GameClient extends ApplicationAdapter {
 			try {
 				while(true) {
 					String jsonRaw = br.readLine();
-					String message = json_parser.parseToString(jsonRaw);
+					String message = json_parser.parseMessageToString(jsonRaw);
 					if(message.startsWith("mes_")){
 						chat_label.setText(chat_label.getText() + message.substring(4).replace("\"", "") + "\n");
 					}
@@ -312,6 +317,13 @@ public class GameClient extends ApplicationAdapter {
 				ex.printStackTrace();
 			}
 		}
+	}
+
+	public String getSid() {
+		return sid;
+	}
+	public void setSid(String sid) {
+		this.sid = sid;
 	}
 
 	@Override
