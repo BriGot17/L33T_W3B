@@ -26,8 +26,9 @@ public class JSONParser {
         objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         json = new JsonMapper();
-
     }
+
+
 
     public static JSONParser getInstance(){
         if(instance == null){
@@ -36,19 +37,6 @@ public class JSONParser {
         return instance;
     }
 
-    public String parseToString(String jsonRaw) throws IOException {
-        JsonNode node = json.readTree(chatMessagePath.toFile());
-        String jsonID = node.get("json_id").toString();
-
-        switch (jsonID){
-
-        }
-        return "";
-    }
-    public String parseToString(InputStream is) throws IOException {
-        JsonNode node = json.readTree(is);
-        return "";
-    }
 
     /**
      * Converts currently active usernames of users to JSON string which gets sent to client
