@@ -64,7 +64,7 @@ public class GameClient extends ApplicationAdapter {
 		console.setPositionPercent(0, 67);
 		console.setDisplayKeyID(Input.Keys.Z);
 
-		console.setCommandExecutor(new GameCommandExecutor(console));
+		console.setCommandExecutor(new GameCommandExecutor(console,this));
 
 		gameWidth = stage.getWidth();
 		gameHeight = stage.getHeight();
@@ -182,7 +182,7 @@ public class GameClient extends ApplicationAdapter {
 			}
 		});
 
-		//table.add(back_button).colspan(2);
+		table.add(back_button).colspan(2);
 
 		table.row().colspan(2).expand();
 		table.add(command_area).fill();
@@ -197,7 +197,6 @@ public class GameClient extends ApplicationAdapter {
 	}
 
 	// File System table actors
-
 	private List filelist;
 	private List.ListStyle fileStyle;
 	private ScrollPane scrollPane;
@@ -231,7 +230,6 @@ public class GameClient extends ApplicationAdapter {
 	}
 
 	// chat room table actors
-
 	private TextButton send_button;
 	private TextArea message_field;
 	private ScrollPane input_scroll;
@@ -240,7 +238,6 @@ public class GameClient extends ApplicationAdapter {
 	private ScrollPane chat_scroll;
 	private ScrollPane users_scroll;
 	private Label chat_label;
-
 
 	private Table buildChatRoomTable(){
 		Table table = new Table();
@@ -324,6 +321,21 @@ public class GameClient extends ApplicationAdapter {
 	}
 	public void setSid(String sid) {
 		this.sid = sid;
+	}
+	public Node getFilesystem() {
+		return Filesystem;
+	}
+	public Map<String, String> getPossibleHosts() {
+		return possibleHosts;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public JSON_Parser getJson_parser() {
+		return json_parser;
+	}
+	public Stage getStage() {
+		return stage;
 	}
 
 	@Override
