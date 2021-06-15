@@ -1,5 +1,6 @@
 package at.brigot.l33t.io;
 
+import at.brigot.l33t.beans.Node;
 import at.brigot.l33t.beans.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -11,10 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class JSONParser {
 
@@ -22,6 +20,7 @@ public class JSONParser {
     private JsonMapper json;
     private Path chatMessagePath = Paths.get(System.getProperty("user.dir"), "src", "main","java", "at", "brigot", "l33t", "res", "chatmessage.json");
     private static JSONParser instance;
+    private Path nodePath = Paths.get(System.getProperty("user.dir"), "src", "main","java","at", "brigot", "l33t", "res", "node.json");
 
     private JSONParser(){
         objectMapper = new ObjectMapper();
@@ -29,15 +28,12 @@ public class JSONParser {
         json = new JsonMapper();
     }
 
-
-
     public static JSONParser getInstance(){
         if(instance == null){
             instance = new JSONParser();
         }
         return instance;
     }
-
 
     /**
      * Converts currently active usernames of users to JSON string which gets sent to client
@@ -60,8 +56,6 @@ public class JSONParser {
         jsonStr = jsonStr.replace("[]", usersStr);
         return jsonStr;
     }
-
-
 
     public String parseAuthResponseToJSON(Boolean success) throws IOException {
         Path path = Paths.get(System.getProperty("user.dir"), "src", "main","java", "at", "brigot", "l33t", "res", "loginresponse.json");
@@ -96,4 +90,47 @@ public class JSONParser {
 
         return jsonStr;
     }
+
+    public Node parseNodeFromJSON(JsonNode node){
+        return new Node(node);
+    }
+
+    public String parseNodeToJSON(Node node, String sid) throws IOException{
+        JsonNode jn = json.readTree(nodePath.toFile());
+        String jsonStr = jn.toString();
+        String temp = "";
+        jsonStr = jsonStr.replace("pl1", sid);
+        jsonStr = jsonStr.replace("pl2", node.getHostname());
+        jsonStr = jsonStr.replace("pl3", node.getIp());
+        temp = "";
+        Iterator it = node.getFilesystem().getAttacks().iterator();
+        temp += "\""+it.next()+"\"";
+        while(it.hasNext()){
+
+            temp += ",\""+it.next()+"\"";
+        }
+        System.out.println(temp);
+        jsonStr = jsonStr.replace("\"pl4\"", temp);
+        temp = "";
+        it = node.getFilesystem().getDefenses().iterator();
+        temp += "\""+it.next()+"\"";
+        while(it.hasNext()){
+
+            temp += ",\""+it.next()+"\"";
+        }
+        System.out.println(temp);
+        jsonStr = jsonStr.replace("\"pl5\"", temp);
+        jsonStr = jsonStr.replace("{\"pl6\":\"\"}", node.getFilesystem().getLib().toString().replace("=",":"));
+        return jsonStr;
+    }
+
+    public Map<String,String> parseNodeRequestToMap(JsonNode node){
+        Map<String,String> request = new HashMap<>();
+        request.put("sid",node.get("sid").toString());
+        request.put("ip",node.get("target_ip").toString());
+        return request;
+    }
+
+
+
 }
