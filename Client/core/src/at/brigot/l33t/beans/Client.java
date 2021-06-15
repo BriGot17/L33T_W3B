@@ -6,24 +6,8 @@ public class Client {
 
     public String hostname;
     public String ip;
-    public List<Entry> content;
     public List<Integer> openPorts;
     public String posOnTarget;
-
-    public Client(String hostname, String ip, List<Entry> content, List<Integer> openPorts) {
-        this.hostname = hostname;
-        this.ip = ip;
-        this.content = content;
-        this.openPorts = openPorts;
-        posOnTarget = "";
-    }
-    public Client(String hostname, String ip, List<Integer> openPorts) {
-        this.hostname = hostname;
-        this.ip = ip;
-        this.openPorts = openPorts;
-        posOnTarget = "";
-    }
-
 
     public String getPosOnTarget() {
         return posOnTarget;
@@ -57,11 +41,4 @@ public class Client {
         this.ip = ip;
     }
 
-    public List<Entry> getContent() {
-        return content;
-    }
-
-    public void setContent(List<Entry> content) {
-        this.content = content;
-    }
 }

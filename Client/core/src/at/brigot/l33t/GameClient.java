@@ -35,13 +35,16 @@ public class GameClient extends ApplicationAdapter {
 	private float gameWidth;
 	private float gameHeight;
 
-	private Table loginTable, chatRoomTable, fileSystemTable, commandLineTable;
+	private Table loginTable, chatRoomTable, fileSystemTable, CATTable;
+	public Table currentTable;
 	private Console console;
 
 	private Socket socket;
 	private String sid;
 
-	private Node Filesystem;
+	private Node filesystem;
+	public String currentDir = "";
+	public boolean connected = false;
 	private Map<String,String> possibleHosts = new HashMap<>();
 	private String username;
 
@@ -51,13 +54,19 @@ public class GameClient extends ApplicationAdapter {
 	PrintWriter pw;
 	BufferedReader br;
 
+	public GameClient() {
+		json_parser = JSON_Parser.getInstance();
+		filesystem = json_parser.getTestNode();
+		out.println(filesystem);
+	}
+
 	@Override
 	public void create () {
 		skin = new Skin(Gdx.files.internal("uiskin.json"));
 		stage = new Stage(new ScreenViewport());
 		Gdx.input.setInputProcessor(stage);
 
-		json_parser = JSON_Parser.getInstance();
+		out.println(filesystem);
 
 		console = new GUIConsole();
 		console.setSizePercent(100, 33);
@@ -72,12 +81,14 @@ public class GameClient extends ApplicationAdapter {
 		loginTable = buildLoginTable();
 		chatRoomTable = buildChatRoomTable();
 		fileSystemTable = buildFileSystem();
-		commandLineTable = buildCommandLine();
+		CATTable = buildCATTable();
 
 		stage.addActor(loginTable);
 		stage.addActor(chatRoomTable);
 		stage.addActor(fileSystemTable);
-		stage.addActor(commandLineTable);
+		stage.addActor(CATTable);
+
+		currentTable = loginTable;
 	}
 
 	// login table actors
@@ -115,7 +126,8 @@ public class GameClient extends ApplicationAdapter {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				loginTable.setVisible(false);
-				commandLineTable.setVisible(true);
+				CATTable.setVisible(true);
+				currentTable = CATTable;
 			}
 		});
 
@@ -128,7 +140,7 @@ public class GameClient extends ApplicationAdapter {
 				if(!username.isEmpty()){
 					loginTable.setVisible(false);
 					chatRoomTable.setVisible(true);
-
+					currentTable = chatRoomTable;
 					try {
 						socket = new Socket("localhost",9999);
 						socketInputStream = socket.getInputStream();
@@ -151,25 +163,26 @@ public class GameClient extends ApplicationAdapter {
 	//Command Line table actors
 	private TextButton back_button;
 
-	private ScrollPane command_scroll;
-	private Label command_label;
-	private TextArea command_area;
+	private ScrollPane editor_scroll;
+	private Label editor_label;
+	public TextArea editor_area;
+	public String currentFile="";
 
-	private Table buildCommandLine(){
+	private Table buildCATTable(){
 		Table table = new Table();
 		table.setFillParent(true);
 
-		command_label = new Label("", skin);
-		command_label.setWrap(true);
-		command_label.setAlignment(Align.topLeft);
+		editor_label = new Label("", skin);
+		editor_label.setWrap(true);
+		editor_label.setAlignment(Align.topLeft);
 
-		command_scroll = new ScrollPane(command_label, skin);
-		command_scroll.setFadeScrollBars(false);
+		editor_scroll = new ScrollPane(editor_label, skin);
+		editor_scroll.setFadeScrollBars(false);
 
-		command_area = new TextArea(">",skin);
+		editor_area = new TextArea("",skin);
 
-
-
+		editor_area.setText(filesystem.getFilesystem().getLib().get("secret doc").toString());
+		editor_area.setDisabled(true);
 		//table.add(command_scroll).width(Gdx.graphics.getWidth()-100f).height(400f).colspan(1).center();
 		//table.row();
 
@@ -177,15 +190,14 @@ public class GameClient extends ApplicationAdapter {
 		back_button.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				commandLineTable.setVisible(false);
-				loginTable.setVisible(true);
+				CATTable.setVisible(false);
 			}
 		});
 
-		table.add(back_button).colspan(2);
+		//table.add(back_button).colspan(2);
 
 		table.row().colspan(2).expand();
-		table.add(command_area).fill();
+		table.add(editor_area).fill();
 		table.row().colspan(2).expandX().fillX();
 		table.add(back_button);
 
@@ -197,9 +209,10 @@ public class GameClient extends ApplicationAdapter {
 	}
 
 	// File System table actors
-	private List filelist;
+	public List filelist;
 	private List.ListStyle fileStyle;
 	private ScrollPane scrollPane;
+	private String[] files = {"placeholder"};
 
 	private Table buildFileSystem(){
 		Table table = new Table();
@@ -208,12 +221,6 @@ public class GameClient extends ApplicationAdapter {
 		filelist = new List(skin);
 		fileStyle = new List.ListStyle();
 
-		String[] files = new String[5];
-		files[0] = "test1";
-		files[1] = "test2";
-		files[2] = "test3";
-		files[3] = "test4";
-		files[4] = "test5";
 		filelist.setItems(files);
 
 		scrollPane = new ScrollPane(filelist);
@@ -323,7 +330,7 @@ public class GameClient extends ApplicationAdapter {
 		this.sid = sid;
 	}
 	public Node getFilesystem() {
-		return Filesystem;
+		return filesystem;
 	}
 	public Map<String, String> getPossibleHosts() {
 		return possibleHosts;
@@ -336,6 +343,18 @@ public class GameClient extends ApplicationAdapter {
 	}
 	public Stage getStage() {
 		return stage;
+	}
+	public Table getLoginTable() {
+		return loginTable;
+	}
+	public Table getChatRoomTable() {
+		return chatRoomTable;
+	}
+	public Table getFileSystemTable() {
+		return fileSystemTable;
+	}
+	public Table getCATTable() {
+		return CATTable;
 	}
 
 	@Override

@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,6 +19,7 @@ public class JSON_Parser {
     private ObjectMapper objectMapper;
     private JsonMapper json;
     private static JSON_Parser instance;
+    //Paths for the JSON Templates
     private Path chatMessagePath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "chatmessage.json");
     private Path loginPath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "login.json");
     private Path nodeReqPath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "node_req.json");
@@ -39,6 +38,13 @@ public class JSON_Parser {
         return instance;
     }
 
+    /**
+     * Method to parse a Message to JSON to send to the Server
+     * @param user -> the Name of the User who wrote the message
+     * @param message -> the message of the user
+     * @return A Json String which will be send to the Server
+     * @throws IOException
+     */
     public String parseMessageToJSON(String user, String message) throws IOException {
         JsonNode node = json.readTree(chatMessagePath.toFile());
         String jsonStr = node.toString();
@@ -47,8 +53,14 @@ public class JSON_Parser {
         return jsonStr;
     }
 
-    public String parseMessageToString(String message) throws IOException {
-        JsonNode node = json.readTree(message);
+    /**
+     * Method for parsing a Json String to a message
+     * @param json_message -> the message in JSON Format
+     * @return a String with the message and the user to display
+     * @throws IOException
+     */
+    public String parseMessageToString(String json_message) throws IOException {
+        JsonNode node = json.readTree(json_message);
         String jsonID = node.get("json_id").toString().replace("\"", "");
 
         switch(jsonID){
@@ -104,6 +116,7 @@ public class JSON_Parser {
      * @return jsonStr -> the JSON String which is sent to the Server for Login
      * @throws IOException
      */
+    @Deprecated
     public String parseLoginToJSON(String user, String pwhash) throws IOException{
         JsonNode node = json.readTree(loginPath.toFile());
         String jsonStr = node.toString();
@@ -122,6 +135,7 @@ public class JSON_Parser {
      * @return jsonStr -> the JSON String which is sent to the Server for Register
      * @throws IOException
      */
+    @Deprecated
     public String parseRegisterToJSON(String user,String email,String pwhash) throws IOException{
         JsonNode node = json.readTree(loginPath.toFile());
         String jsonStr = node.toString();
@@ -138,6 +152,7 @@ public class JSON_Parser {
      * @return
      * @throws IOException
      */
+    @Deprecated
     public String parseLoginResponseToString(String response) throws IOException{
         JsonNode node = json.readTree(response);
         String sid = node.get("sid").asText();
@@ -146,10 +161,22 @@ public class JSON_Parser {
         return Str;
     }
 
+    /**
+     * Method for parsing a Node from a Json Node
+     * @param node -> the Node which will be parsed
+     * @return
+     */
     public Node parseNodeFromJSON(JsonNode node){
         return new Node(node);
     }
 
+    /**
+     * Method for parsing a Node to JSON to send to the Server
+     * @param node -> the Node which will be parsed
+     * @param sid -> the Session ID of the Client
+     * @return a JSON String
+     * @throws IOException
+     */
     public String parseNodeToJSON(Node node, String sid) throws IOException{
         JsonNode jn = json.readTree(nodePath.toFile());
         String jsonStr = jn.toString();
@@ -179,6 +206,13 @@ public class JSON_Parser {
         return jsonStr;
     }
 
+    /**
+     * Method for parsing the IP to an JSON to send to the Server
+     * @param ip -> the IP of the requested Node
+     * @param sid -> the Session ID of the Client
+     * @return a JSON String
+     * @throws IOException
+     */
     public String parseNodeRequestToJSON(String ip, String sid) throws IOException{
         JsonNode node = json.readTree(nodeReqPath.toFile());
         String jsonStr = node.toString();
@@ -187,6 +221,11 @@ public class JSON_Parser {
         return jsonStr;
     }
 
+    /**
+     * Parses a JsonNode from the server to a Map of possible hosts.
+     * @param node the JsonNode we receive from the server
+     * @return a Map of possible Hosts
+     */
     public Map<String,String> parseHostAnnounce(JsonNode node){
         Map<String,String> possibleHosts = new HashMap<>();
         String hosts = node.get("hosts").toString().replace("[","").replace("]","");
@@ -197,6 +236,23 @@ public class JSON_Parser {
         return possibleHosts;
     }
 
+    public Node getTestNode(){
+        Node test = null;
+        JsonNode node = null;
+        JsonMapper mapper = new JsonMapper();
+        try {
+            node = mapper.readTree(Paths.get(System.getProperty("user.dir"), "core", "src", "at", "brigot", "l33t", "res", "json_templates", "nodetest.json").toFile());
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        test = new Node(node);
+        return test;
+    }
+
+    /**
+     * The Main is only being used for testing the JSON_Parser
+     * @param args
+     */
     public static void main(String[] args) {
         JsonMapper mapper = new JsonMapper();
         JsonNode node = null;

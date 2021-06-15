@@ -23,7 +23,7 @@ public class Filesystem {
                 addDefense(n.asText());
             }
         }
-        String lib = node.get("lib").toString().replace("{","").replace("}","");
+        String lib = node.get("lib").toString().replace("{","").replace("}","").replace("\"","");
         for (String s : lib.split(",")) {
             addToLib(s.split(":")[0],s.split(":")[1]);
         }
@@ -53,6 +53,10 @@ public class Filesystem {
     }
     public HashMap getLib(){
         return (HashMap) root.get("lib");
+    }
+    public Object getDir(String dir){return root.get(dir);}
+    public Map<String, Object> getRoot() {
+        return root;
     }
 
     @Override

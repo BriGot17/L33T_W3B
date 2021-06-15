@@ -1,149 +1,125 @@
 package at.brigot.l33t.bl;
 
-import at.brigot.l33t.beans.Client;
-import at.brigot.l33t.beans.Entry;
+import at.brigot.l33t.GameClient;
 import com.strongjoshua.console.CommandExecutor;
 import com.strongjoshua.console.Console;
-
-import java.util.List;
-
+import com.strongjoshua.console.LogLevel;
 
 public class GameCommandExecutor extends CommandExecutor {
 
     private Console console;
+    private GameClient client;
 
-    public GameCommandExecutor(Console console){
+    public GameCommandExecutor(Console console, GameClient client){
         this.console = console;
+        this.client = client;
     }
 
-    public void ls(Client client){
-        List<Entry> filesystem = client.getContent();
-        for (Entry entry: filesystem) {
-            console.log(entry.getEntryName() + "\n");
+    /**
+     * Method to show the contents of a txt file
+     * @param Dateiname -> The name of the txt file
+     */
+    public void cat(String Dateiname){
+        if(!client.currentDir.equals("lib")){
+            console.log("No txt File found in this Directory.",LogLevel.ERROR);
+            return;
         }
-    }
-    public void cat(Client client, String entryName){
-        List<Entry> entries = client.getContent();
-        for (Entry entry: entries) {
-            if(entry.getEntryName() == entryName){
-                if(entry.isDirectory()){
-                    console.log("Error: Target is a directory");
-                    return;
-                }
-                console.log(entry.getContent() + "\n");
-                return;
-            }
+        if(!client.getFilesystem().getFilesystem().getLib().containsKey(Dateiname)){
+            console.log("No File with this name found.",LogLevel.ERROR);
+            return;
         }
+        client.editor_area.setText(client.getFilesystem().getFilesystem().getLib().get(Dateiname).toString());
+        client.getCATTable().setVisible(true);
     }
-    public void portmap(Client client){
-        List<Integer> ports = client.openPorts;
-        for (int port: ports) {
-            console.log(port+"\n");
+
+    //edit von dateien
+    public void edit(String Dateiname){
+        System.out.println(Dateiname);
+        client.editor_area.setText(Dateiname);
+    }
+
+    public void portmap(){
+
+    }
+
+    /**
+     * Method for disconnecting from a file system
+     */
+    public void disconnect(){
+        client.getFileSystemTable().setVisible(false);
+        client.currentTable.setVisible(true);
+        client.connected = false;
+    }
+
+    public void connect(String param){
+        if(client.connected){
+            console.log("It is not possible to connect to 2 Devices at once!", LogLevel.ERROR);
+            return;
+        }
+        if(param.equals("Local")){
+            client.currentDir = "root";
+            cd("root");
+            client.connected = true;
+        }else if(client.getPossibleHosts().containsValue(param)){
+            //Not yet implemented
+        }else{
+            console.log("Not an valid connection!", LogLevel.ERROR);
+        }
+        client.currentTable.setVisible(false);
+        client.getFileSystemTable().setVisible(true);
+    }
+
+    /**
+     * Method to move between directories
+     * @param Directoryname -> The name of the next Directory
+     */
+    public void cd(String Directoryname){
+        if(client.currentDir.equals("")){
+            console.log("Not connected to any Filesystem", LogLevel.ERROR);
+            return;
+        }
+        if(client.currentDir.equals("root") && Directoryname.equals("..")){
+            console.log("Directory not found!",LogLevel.ERROR);
+            return;
+        }
+        if(client.getFilesystem().getFilesystem().getRoot().keySet().contains(Directoryname)&&
+                client.getFilesystem().getFilesystem().getRoot().keySet().contains(client.currentDir)){
+            console.log("Directory not found!",LogLevel.ERROR);
+            return;
+        }
+        switch(Directoryname){
+            case "root":
+            case "..":
+                client.filelist.setItems(new String[] {"att","def","lib"});
+                client.currentDir = "root";
+                break;
+            case "att":
+                client.filelist.setItems(client.getFilesystem().getFilesystem().getAttacks().toArray());
+                client.currentDir = "att";
+                break;
+            case "def":
+                client.filelist.setItems(client.getFilesystem().getFilesystem().getDefenses().toArray());
+                client.currentDir = "def";
+                break;
+            case "lib":
+                client.filelist.setItems(client.getFilesystem().getFilesystem().getLib().keySet().toArray());
+                client.currentDir = "lib";
+                break;
+            default:
+                console.log("Directory not found!",LogLevel.ERROR);
         }
     }
 
-    public void cd(Client target, Client client, String targetDir){
-        List<Entry> targetEntries = target.getContent();
-        for (Entry entry: targetEntries
-             ) {
-            if(entry.getEntryName().equals(targetDir)){
-                if(!entry.isDirectory()){
-                    console.log("Error: Target is not a directory");
-                    return;
-                }
-                client.setPosOnTarget(entry.getEntryName());
-            }
-        }
+    //copy and download
+    public void cpd(){
+
     }
-    public void cpd(Client target, Client client, String targetEntry){
-        List<Entry> targetEntries = target.getContent();
-        for (Entry entry: targetEntries) {
-            if(entry.isDirectory()){
-                List<Entry> subdirectory = entry.getSubEntries();
-                for (Entry subEntry: subdirectory) {
-                    if(subEntry.getEntryName().equals(targetEntry)){
-                        copyToClient(client, subEntry, targetEntry);
-                        /**
-                        for (Entry clientEntry: client.getContent()) {
-                            if(clientEntry.isDirectory()){
-                                for (Entry clientSubEntry: clientEntry.getSubEntries()) {
-                                    if(clientSubEntry.getEntryName().equals(targetEntry)){
-                                        List<Entry> clientSubEntries = clientEntry.getSubEntries();
-                                        clientSubEntries.add(subEntry);
-                                        clientEntry.setSubEntries(clientSubEntries);
-                                    }
-                                }
-                            }
-                            if(clientEntry.getEntryName().equals(entry.getEntryName()) && entry.isDirectory()){
-                                List<Entry> clientEntries = client.getContent();
-                                clientEntries.add(subEntry);
-                                client.setContent(clientEntries);
-                            }
-                        }
-                        */
-                    }
-                }
-            }
-            if(entry.getEntryName().equals(targetEntry)){
-                copyToClient(client, entry, targetEntry);
-                /**for (Entry clientEntry: client.getContent()) {
-                    if(clientEntry.getEntryName().equals(entry.getEntryName()) && entry.isDirectory()){
-                        List<Entry> clientEntries = client.getContent();
-                        clientEntries.add(entry);
-                        client.setContent(clientEntries);
-                    }
-                }
-                 */
-            }
-        }
+
+    //download and delete
+    public void dad(){
+
     }
-    public void dad(Client client, Client target, String targetEntry){
-        List<Entry> targetEntries = target.getContent();
-        Entry deleteEntry = null;
-        for (Entry entry: targetEntries) {
-            if(entry.isDirectory()){
-                List<Entry> subdirectory = entry.getSubEntries();
-                for (Entry subEntry: subdirectory) {
-                    if(subEntry.getEntryName().equals(targetEntry)){
-                        copyToClient(client, subEntry, targetEntry);
-                        deleteEntry = subEntry;
-                        /**
-                         for (Entry clientEntry: client.getContent()) {
-                         if(clientEntry.isDirectory()){
-                         for (Entry clientSubEntry: clientEntry.getSubEntries()) {
-                         if(clientSubEntry.getEntryName().equals(targetEntry)){
-                         List<Entry> clientSubEntries = clientEntry.getSubEntries();
-                         clientSubEntries.add(subEntry);
-                         clientEntry.setSubEntries(clientSubEntries);
-                         }
-                         }
-                         }
-                         if(clientEntry.getEntryName().equals(entry.getEntryName()) && entry.isDirectory()){
-                         List<Entry> clientEntries = client.getContent();
-                         clientEntries.add(subEntry);
-                         client.setContent(clientEntries);
-                         }
-                         }
-                         */
-                    }
-                }
-            }
-            if(entry.getEntryName().equals(targetEntry)){
-                copyToClient(client, entry, targetEntry);
-                /**for (Entry clientEntry: client.getContent()) {
-                 if(clientEntry.getEntryName().equals(entry.getEntryName()) && entry.isDirectory()){
-                 List<Entry> clientEntries = client.getContent();
-                 clientEntries.add(entry);
-                 client.setContent(clientEntries);
-                 }
-                 }
-                 */
-                deleteEntry = entry;
-            }
-        }
-        targetEntries.remove(deleteEntry);
-        target.setContent(targetEntries);
-    }
+
     public void FTPoline(){
 
     }
@@ -180,36 +156,4 @@ public class GameCommandExecutor extends CommandExecutor {
     public void secureMail(){
 
     }
-
-    /**
-     * Helper method for copying files to callers system
-     * @param client The command caller
-     * @param entry The entry to be copied
-     * @param targetEntry The targetentries name
-     */
-    public void copyToClient(Client client, Entry entry, String targetEntry){
-        for (Entry clientEntry: client.getContent()) {
-            if(clientEntry.isDirectory()){
-                for (Entry clientSubEntry: clientEntry.getSubEntries()) {
-                    if(clientSubEntry.getEntryName().equals(targetEntry)){
-                        List<Entry> clientSubEntries = clientEntry.getSubEntries();
-                        clientSubEntries.add(entry);
-                        clientEntry.setSubEntries(clientSubEntries);
-                        console.log("Successfully copied");
-                        return;
-                    }
-                }
-            }
-            if(clientEntry.getEntryName().equals(entry.getEntryName()) && entry.isDirectory()){
-                List<Entry> clientEntries = client.getContent();
-                clientEntries.add(entry);
-                client.setContent(clientEntries);
-                console.log("Successfully copied");
-                return;
-            }
-        }
-        console.log("Error copying target");
-    }
-
-
 }
