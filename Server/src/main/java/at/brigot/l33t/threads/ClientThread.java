@@ -32,7 +32,6 @@ public class ClientThread extends Thread {
     }
 
     public void sendMessage(String jsonMsg) {
-
         output.println(jsonMsg);
     }
 

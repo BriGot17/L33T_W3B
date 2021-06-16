@@ -95,6 +95,14 @@ public class JSONParser {
         return new Node(node);
     }
 
+    public String[] parseUserAckFromJSON(String rawJson) throws JsonProcessingException {
+        JsonNode node = json.readTree(rawJson);
+        String[] response = new String[2];
+        response[0] = node.get("sid").toString();
+        response[1] = node.get("user").toString();
+        return response;
+    }
+
     public String parseNodeToJSON(Node node, String sid) throws IOException{
         JsonNode jn = json.readTree(nodePath.toFile());
         String jsonStr = jn.toString();
@@ -122,6 +130,24 @@ public class JSONParser {
         jsonStr = jsonStr.replace("\"pl5\"", temp);
         jsonStr = jsonStr.replace("{\"pl6\":\"\"}", node.getFilesystem().getLib().toString().replace("=",":"));
         return jsonStr;
+    }
+
+    public String parseHostAnnounceToString(Set<String> ips) throws IOException {
+        Path path = Paths.get(System.getProperty("user.dir"), "src", "main","java", "at", "brigot", "l33t", "res", "host_announce.json");
+        JsonNode node = json.readTree(path.toFile());
+        String jsonStr = node.toString();
+
+        String ipString = "";
+        String[] ipArray = (String[]) ips.toArray();
+        for(int i = 0; i < ipArray.length; i++){
+
+            ipString += "\"" + ipArray[i] + "\"";
+            if(i++ != ips.size()){
+                ipString += ",";
+            }
+        }
+
+        return jsonStr.replace("pl1", ipString);
     }
 
     public Map<String,String> parseNodeRequestToMap(JsonNode node){
