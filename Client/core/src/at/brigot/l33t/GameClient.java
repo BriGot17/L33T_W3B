@@ -9,6 +9,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.Emitter;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -35,7 +36,7 @@ public class GameClient extends ApplicationAdapter {
 	private float gameWidth;
 	private float gameHeight;
 
-	private Table loginTable, chatRoomTable, fileSystemTable, CATTable;
+	private Table loginTable, chatRoomTable, fileSystemTable, CATTable, EditorTable;
 	public Table currentTable;
 	private Console console;
 
@@ -43,7 +44,9 @@ public class GameClient extends ApplicationAdapter {
 	private String sid;
 
 	private Node filesystem;
+	public Node currentFilesystem = null;
 	public String currentDir = "";
+	public String currentFile="";
 	public boolean connected = false;
 	private Map<String,String> possibleHosts = new HashMap<>();
 	private String username;
@@ -70,7 +73,7 @@ public class GameClient extends ApplicationAdapter {
 
 		console = new GUIConsole();
 		console.setSizePercent(100, 33);
-		console.setPositionPercent(0, 67);
+		console.setPositionPercent(100, 0);
 		console.setDisplayKeyID(Input.Keys.Z);
 
 		console.setCommandExecutor(new GameCommandExecutor(console,this));
@@ -82,11 +85,13 @@ public class GameClient extends ApplicationAdapter {
 		chatRoomTable = buildChatRoomTable();
 		fileSystemTable = buildFileSystem();
 		CATTable = buildCATTable();
+		EditorTable = buildEditorTable();
 
 		stage.addActor(loginTable);
 		stage.addActor(chatRoomTable);
 		stage.addActor(fileSystemTable);
 		stage.addActor(CATTable);
+		stage.addActor(EditorTable);
 
 		currentTable = loginTable;
 	}
@@ -160,15 +165,14 @@ public class GameClient extends ApplicationAdapter {
 		return table;
 	}
 
-	//Command Line table actors
+	//CAT table actors
 	private TextButton back_button;
-
+	private TextButton save_button;
 	private ScrollPane editor_scroll;
 	private Label editor_label;
 	public TextArea editor_area;
-	public String currentFile="";
 
-	private Table buildCATTable(){
+	private Table buildEditorTable(){
 		Table table = new Table();
 		table.setFillParent(true);
 
@@ -181,27 +185,69 @@ public class GameClient extends ApplicationAdapter {
 
 		editor_area = new TextArea("",skin);
 
-		editor_area.setText(filesystem.getFilesystem().getLib().get("secret doc").toString());
-		editor_area.setDisabled(true);
-		//table.add(command_scroll).width(Gdx.graphics.getWidth()-100f).height(400f).colspan(1).center();
-		//table.row();
+		save_button = new TextButton("Save", skin);
+		save_button.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+
+			}
+		});
+
+		back_button = new TextButton("Back", skin);
+		back_button.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				EditorTable.setVisible(false);
+				console.setVisible(true);
+			}
+		});
+
+		Group g = new Group();
+		g.addActor(back_button);
+		g.addActor(save_button);
+
+		table.add(editor_area).colspan(2).expand().fill().row();
+		table.add(back_button).colspan(1).expandX().fillX();
+		table.add(save_button).colspan(1).expandX().fillX();
+
+		table.setVisible(false);
+
+		return table;
+	}
+
+	//CAT table actors
+	private ScrollPane cat_scroll;
+	private Label cat_label;
+	public TextArea cat_area;
+
+	private Table buildCATTable(){
+		Table table = new Table();
+		table.setFillParent(true);
+
+		cat_label = new Label("", skin);
+		cat_label.setWrap(true);
+		cat_label.setAlignment(Align.topLeft);
+
+		cat_scroll = new ScrollPane(cat_label, skin);
+		cat_scroll.setFadeScrollBars(false);
+
+		cat_area = new TextArea("",skin);
+
+		cat_area.setDisabled(true);
 
 		back_button = new TextButton("Back", skin);
 		back_button.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				CATTable.setVisible(false);
+				console.setVisible(true);
 			}
 		});
 
-		//table.add(back_button).colspan(2);
-
 		table.row().colspan(2).expand();
-		table.add(editor_area).fill();
+		table.add(cat_area).fill();
 		table.row().colspan(2).expandX().fillX();
 		table.add(back_button);
-
-		//table.add(commandInput_scroll).width(300f).colspan(2);
 
 		table.setVisible(false);
 
@@ -355,6 +401,9 @@ public class GameClient extends ApplicationAdapter {
 	}
 	public Table getCATTable() {
 		return CATTable;
+	}
+	public Table getEditorTable() {
+		return EditorTable;
 	}
 
 	@Override

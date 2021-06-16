@@ -24,18 +24,28 @@ public class GameCommandExecutor extends CommandExecutor {
             console.log("No txt File found in this Directory.",LogLevel.ERROR);
             return;
         }
-        if(!client.getFilesystem().getFilesystem().getLib().containsKey(Dateiname)){
+        if(!client.currentFilesystem.getFilesystem().getLib().containsKey(Dateiname)){
             console.log("No File with this name found.",LogLevel.ERROR);
             return;
         }
-        client.editor_area.setText(client.getFilesystem().getFilesystem().getLib().get(Dateiname).toString());
+        client.cat_area.setText(client.currentFilesystem.getFilesystem().getLib().get(Dateiname).toString());
         client.getCATTable().setVisible(true);
+        console.setVisible(false);
     }
 
     //edit von dateien
     public void edit(String Dateiname){
-        System.out.println(Dateiname);
-        client.editor_area.setText(Dateiname);
+        if(!client.currentDir.equals("lib")){
+            console.log("No txt File found in this Directory.",LogLevel.ERROR);
+            return;
+        }
+        if(!client.currentFilesystem.getFilesystem().getLib().containsKey(Dateiname)){
+            console.log("No File with this name found.",LogLevel.ERROR);
+            return;
+        }
+        client.editor_area.setText(client.currentFilesystem.getFilesystem().getLib().get(Dateiname).toString());
+        client.getEditorTable().setVisible(true);
+        console.setVisible(false);
     }
 
     public void portmap(){
@@ -46,6 +56,7 @@ public class GameCommandExecutor extends CommandExecutor {
      * Method for disconnecting from a file system
      */
     public void disconnect(){
+        client.currentFilesystem = null;
         client.getFileSystemTable().setVisible(false);
         client.currentTable.setVisible(true);
         client.connected = false;
@@ -58,12 +69,14 @@ public class GameCommandExecutor extends CommandExecutor {
         }
         if(param.equals("Local")){
             client.currentDir = "root";
+            client.currentFilesystem = client.getFilesystem();
             cd("root");
             client.connected = true;
         }else if(client.getPossibleHosts().containsValue(param)){
             //Not yet implemented
         }else{
             console.log("Not an valid connection!", LogLevel.ERROR);
+            return;
         }
         client.currentTable.setVisible(false);
         client.getFileSystemTable().setVisible(true);
@@ -74,7 +87,7 @@ public class GameCommandExecutor extends CommandExecutor {
      * @param Directoryname -> The name of the next Directory
      */
     public void cd(String Directoryname){
-        if(client.currentDir.equals("")){
+        if(client.currentFilesystem == null){
             console.log("Not connected to any Filesystem", LogLevel.ERROR);
             return;
         }
@@ -82,8 +95,8 @@ public class GameCommandExecutor extends CommandExecutor {
             console.log("Directory not found!",LogLevel.ERROR);
             return;
         }
-        if(client.getFilesystem().getFilesystem().getRoot().keySet().contains(Directoryname)&&
-                client.getFilesystem().getFilesystem().getRoot().keySet().contains(client.currentDir)){
+        if(client.currentFilesystem.getFilesystem().getRoot().keySet().contains(Directoryname)&&
+                client.currentFilesystem.getFilesystem().getRoot().keySet().contains(client.currentDir)){
             console.log("Directory not found!",LogLevel.ERROR);
             return;
         }
@@ -94,15 +107,15 @@ public class GameCommandExecutor extends CommandExecutor {
                 client.currentDir = "root";
                 break;
             case "att":
-                client.filelist.setItems(client.getFilesystem().getFilesystem().getAttacks().toArray());
+                client.filelist.setItems(client.currentFilesystem.getFilesystem().getAttacks().toArray());
                 client.currentDir = "att";
                 break;
             case "def":
-                client.filelist.setItems(client.getFilesystem().getFilesystem().getDefenses().toArray());
+                client.filelist.setItems(client.currentFilesystem.getFilesystem().getDefenses().toArray());
                 client.currentDir = "def";
                 break;
             case "lib":
-                client.filelist.setItems(client.getFilesystem().getFilesystem().getLib().keySet().toArray());
+                client.filelist.setItems(client.currentFilesystem.getFilesystem().getLib().keySet().toArray());
                 client.currentDir = "lib";
                 break;
             default:
