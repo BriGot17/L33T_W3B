@@ -33,7 +33,10 @@ public class GameCommandExecutor extends CommandExecutor {
         console.setVisible(false);
     }
 
-    //edit von dateien
+    /**
+     * Method to show and allow editing a txt file
+     * @param Dateiname -> The name of the txt file
+     */
     public void edit(String Dateiname){
         if(!client.currentDir.equals("lib")){
             console.log("No txt File found in this Directory.",LogLevel.ERROR);
@@ -44,6 +47,7 @@ public class GameCommandExecutor extends CommandExecutor {
             return;
         }
         client.editor_area.setText(client.currentFilesystem.getFilesystem().getLib().get(Dateiname).toString());
+        client.currentFile = Dateiname;
         client.getEditorTable().setVisible(true);
         console.setVisible(false);
     }

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.System.out;
+import static java.lang.System.setOut;
 
 public class GameClient extends ApplicationAdapter {
 	private Stage stage;
@@ -185,11 +186,23 @@ public class GameClient extends ApplicationAdapter {
 
 		editor_area = new TextArea("",skin);
 
+		final Dialog dialog = new Dialog("Warning", skin, "dialog") {
+			public void result(Object obj) {
+				if((boolean)obj) {
+					currentFilesystem.getFilesystem().getLib().remove(currentFile);
+					currentFilesystem.getFilesystem().getLib().put(currentFile, editor_area.getText());
+				}
+			}
+		};
+		dialog.text("Are you sure you want to save?");
+		dialog.button("Yes", true); //sends "true" as the result
+		dialog.button("No", false);  //sends "false" as the result
+
 		save_button = new TextButton("Save", skin);
 		save_button.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-
+				dialog.show(stage);
 			}
 		});
 
@@ -386,15 +399,6 @@ public class GameClient extends ApplicationAdapter {
 	}
 	public JSON_Parser getJson_parser() {
 		return json_parser;
-	}
-	public Stage getStage() {
-		return stage;
-	}
-	public Table getLoginTable() {
-		return loginTable;
-	}
-	public Table getChatRoomTable() {
-		return chatRoomTable;
 	}
 	public Table getFileSystemTable() {
 		return fileSystemTable;

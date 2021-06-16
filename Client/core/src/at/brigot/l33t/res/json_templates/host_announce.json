@@ -1,7 +1,6 @@
 {
     "json_id" : "host_announcement",
-    "hosts": [
-        {"hostname" : "ip"},
-        {"hostname2": "ip2"}
+    "ip": [
+        pl1
     ]
 }

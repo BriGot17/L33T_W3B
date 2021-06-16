@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,6 +25,7 @@ public class JSON_Parser {
     private Path loginPath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "login.json");
     private Path nodeReqPath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "node_req.json");
     private Path nodePath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "node.json");
+    private Path userAck = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "user_ack.json");
 
     public JSON_Parser() {
         this.objectMapper = new ObjectMapper();
@@ -236,6 +238,18 @@ public class JSON_Parser {
         return possibleHosts;
     }
 
+    public String parseUserAck (String sid,String username) throws IOException{
+        JsonNode node = json.readTree(userAck.toFile());
+        String jsonStr = node.toString();
+        jsonStr = jsonStr.replace("pl1",sid);
+        jsonStr = jsonStr.replace("pl2",username);
+        return jsonStr;
+    }
+
+    /**
+     * This is a Test Method
+     * @return A pre defined Node to test things
+     */
     public Node getTestNode(){
         Node test = null;
         JsonNode node = null;
@@ -248,7 +262,7 @@ public class JSON_Parser {
         test = new Node(node);
         return test;
     }
-
+    
     /**
      * The Main is only being used for testing the JSON_Parser
      * @param args
