@@ -172,6 +172,10 @@ public class JSON_Parser {
         return new Node(node);
     }
 
+    public Node parseNodeFromJSON(String rawString) throws JsonProcessingException {
+        JsonNode node = json.readTree(rawString);
+        return new Node(node);
+    }
     /**
      * Method for parsing a Node to JSON to send to the Server
      * @param node -> the Node which will be parsed
@@ -228,15 +232,27 @@ public class JSON_Parser {
      * @param node the JsonNode we receive from the server
      * @return a Map of possible Hosts
      */
-    public Map<String,String> parseHostAnnounce(JsonNode node){
+    public List<String> parseHostAnnounce(JsonNode node){
         Map<String,String> possibleHosts = new HashMap<>();
-        String hosts = node.get("hosts").toString().replace("[","").replace("]","");
+        List<String> possibleIps = new ArrayList<>();
+        String hosts = node.get("ips").toString().replace("[","").replace("]","");
         for (String s : hosts.split(",")) {
-            s = s.replace("{","").replace("}","").replace("\"","");
-            possibleHosts.put(s.split(":")[0],s.split(":")[1]);
+            s = s.replace("\"","");
+            possibleIps.add(s);
         }
-        return possibleHosts;
+        return possibleIps;
     }
+    public List<String> parseHostAnnounce(String rawString) throws JsonProcessingException {
+        JsonNode node = json.readTree(rawString);
+        List<String> possibleIps = new ArrayList<>();
+        String hosts = node.get("ips").toString().replace("[","").replace("]","");
+        for (String s : hosts.split(",")) {
+            s = s.replace("\"","");
+            possibleIps.add(s);
+        }
+        return possibleIps;
+    }
+
 
     public String parseUserAck (String sid,String username) throws IOException{
         JsonNode node = json.readTree(userAck.toFile());
@@ -244,6 +260,16 @@ public class JSON_Parser {
         jsonStr = jsonStr.replace("pl1",sid);
         jsonStr = jsonStr.replace("pl2",username);
         return jsonStr;
+    }
+
+    public String getJsonID(String rawString) throws JsonProcessingException {
+        JsonNode node = json.readTree(rawString);
+        return node.get("json_id").toString();
+    }
+
+    public Boolean compareSID(String rawString, String otherSID) throws JsonProcessingException {
+        JsonNode node = json.readTree(rawString);
+        return node.get("sid").toString() == otherSID;
     }
 
     /**
