@@ -38,18 +38,14 @@ public class JsonServer {
         users.put(sid, user);
     }
 
-    public void sendToUser(String requestingSID, String requestedIP){
-        UserThread requestor = users.get(requestingSID);
+    public void sendNodeToUser(String requestingSID, String requestedIP){
+        UserThread requester = users.get(requestingSID);
         Node requestedNode = nodes.get(requestedIP);
-        requestor.sendNode(requestedNode, requestingSID);
+        requester.sendNode(requestedNode, requestingSID);
 
     }
 
     public void addToNodes(Node newNode){
         nodes.put(newNode.getIp(), newNode);
     }
-
-
-
-
 }

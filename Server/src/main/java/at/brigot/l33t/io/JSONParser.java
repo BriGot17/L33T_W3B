@@ -1,7 +1,6 @@
 package at.brigot.l33t.io;
 
 import at.brigot.l33t.beans.Node;
-import at.brigot.l33t.beans.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -91,7 +89,8 @@ public class JSONParser {
         return jsonStr;
     }
 
-    public Node parseNodeFromJSON(JsonNode node){
+    public Node parseNodeFromJSON(String rawString) throws JsonProcessingException {
+        JsonNode node = json.readTree(rawString);
         return new Node(node);
     }
 
@@ -150,7 +149,13 @@ public class JSONParser {
         return jsonStr.replace("pl1", ipString);
     }
 
-    public Map<String,String> parseNodeRequestToMap(JsonNode node){
+    public String getJsonID(String message) throws JsonProcessingException {
+        JsonNode node = json.readTree(message);
+        return node.get("json_id").toString();
+    }
+
+    public Map<String,String> parseNodeRequestToMap(String rawString) throws JsonProcessingException {
+        JsonNode node = json.readTree(rawString);
         Map<String,String> request = new HashMap<>();
         request.put("sid",node.get("sid").toString());
         request.put("ip",node.get("target_ip").toString());

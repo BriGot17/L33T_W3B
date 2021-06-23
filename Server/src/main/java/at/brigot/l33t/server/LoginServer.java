@@ -22,11 +22,6 @@ public class LoginServer {
             e.printStackTrace();
         }
     }
-
-    public static void main(String[] args) {
-        LoginServer ls = new LoginServer();
-        ls.startServer();
-    }
 }
 
 

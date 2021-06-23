@@ -32,8 +32,4 @@ public class  ChatServer {
         for (ClientThread c : clients)
             c.sendMessage(jsonMessage);
     }
-
-    public static void main(String ... args) throws Exception {
-        new ChatServer().startServer();
-    }
 }

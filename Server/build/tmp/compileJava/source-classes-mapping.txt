@@ -20,11 +20,13 @@ at/brigot/l33t/beans/User.java
  at.brigot.l33t.beans.User
 at/brigot/l33t/server/LoginClient.java
  at.brigot.l33t.server.LoginClient
-at/brigot/l33t/beans/Host.java
- at.brigot.l33t.beans.Host
+at/brigot/l33t/threads/UserThread.java
+ at.brigot.l33t.threads.UserThread
 at/brigot/l33t/server/RegisterHandler.java
  at.brigot.l33t.server.RegisterHandler
-at/brigot/l33t/db/DB_Database.java
- at.brigot.l33t.db.DB_Database
 at/brigot/l33t/io/JSONParser.java
  at.brigot.l33t.io.JSONParser
+at/brigot/l33t/db/DB_Database.java
+ at.brigot.l33t.db.DB_Database
+at/brigot/l33t/server/ServerHandler.java
+ at.brigot.l33t.server.ServerHandler
