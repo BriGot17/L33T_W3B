@@ -129,6 +129,7 @@ public class JSON_Parser {
         return jsonStr;
     }
 
+
     /**
      * Method for parsing the Register information to JSON to send to the Server
      * @param user -> the Username of the User which is Displayed ingame and is later used for Login
@@ -288,7 +289,8 @@ public class JSON_Parser {
         test = new Node(node);
         return test;
     }
-    
+
+
     /**
      * The Main is only being used for testing the JSON_Parser
      * @param args

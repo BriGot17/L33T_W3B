@@ -94,6 +94,17 @@ public class JSONParser {
         return new Node(node);
     }
 
+    public Map<String, String> parseAuthFromJSON(String rawJson, boolean isRegister) throws JsonProcessingException {
+        JsonNode node = json.readTree(rawJson);
+        Map<String, String> result = new HashMap<>();
+        result.put("user", node.get("user").toString());
+        if(isRegister){
+            result.put("email", node.get("email").toString());
+        }
+        result.put("pwhash", node.get("pwhash").toString());
+        return result;
+    }
+
     public String[] parseUserAckFromJSON(String rawJson) throws JsonProcessingException {
         JsonNode node = json.readTree(rawJson);
         String[] response = new String[2];
