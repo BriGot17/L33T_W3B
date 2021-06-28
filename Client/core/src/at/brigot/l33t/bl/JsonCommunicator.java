@@ -24,12 +24,14 @@ public class JsonCommunicator{
      * @param sid The sid of the logged in user
      * @throws IOException
      */
-    public JsonCommunicator(String sid) throws IOException {
+    public JsonCommunicator(String sid, String username) throws IOException {
         this.sid = sid;
         json = JSON_Parser.getInstance();
         socket = new Socket("localhost", 6969);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        output = new PrintWriter(socket.getOutputStream());
+        output = new PrintWriter(socket.getOutputStream(), true);
+        output.println(json.parseUserAck(sid, username));
+        output.flush();
     }
 
     /**
@@ -109,14 +111,14 @@ public class JsonCommunicator{
             try {
             line = input.readLine();
             if(line.contains("json_id")){
-                if(!json.compareSID(line, sid)){
-                    return null;
-                }
                 switch(json.getJsonID(line)){
-                    case "node_push":
+                    case "\"node_push\"":
+                        if(!json.compareSID(line, sid)){
+                            return null;
+                        }
                         result = receiveNode(line);
                         break;
-                    case "host_announcement":
+                    case "\"host_announcement\"":
                         result = receiveHostAnnounce(line);
                         break;
                     default:

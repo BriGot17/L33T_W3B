@@ -98,8 +98,6 @@ public class JSONParser {
         JsonNode node = json.readTree(rawJson);
 
         Map<String, String> result = new HashMap<>();
-        System.out.println(node);
-        //System.out.println(result);
         result.put("user", node.get("username").toString().replace("\"", ""));
         if(isRegister){
             result.put("email", node.get("email").toString().replace("\"", ""));
@@ -150,8 +148,14 @@ public class JSONParser {
         JsonNode node = json.readTree(path.toFile());
         String jsonStr = node.toString();
 
-        String ipString = "";
-        String[] ipArray = (String[]) ips.toArray();
+        String ipString = "[";
+        String[] ipArray = new String[ips.size()];
+        Iterator<String> ipIterator = ips.iterator();
+        int cnt = 0;
+        while(ipIterator.hasNext()){
+            ipArray[cnt] = ipIterator.next();
+            cnt++;
+        }
         for(int i = 0; i < ipArray.length; i++){
 
             ipString += "\"" + ipArray[i] + "\"";
@@ -159,8 +163,9 @@ public class JSONParser {
                 ipString += ",";
             }
         }
+        ipString += "]";
 
-        return jsonStr.replace("pl1", ipString);
+        return jsonStr.replace("[\"pl1\"]", ipString);
     }
 
     public String getJsonID(String message) throws JsonProcessingException {

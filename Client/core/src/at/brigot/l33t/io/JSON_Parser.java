@@ -232,7 +232,6 @@ public class JSON_Parser {
      * @return a Map of possible Hosts
      */
     public List<String> parseHostAnnounce(JsonNode node){
-        Map<String,String> possibleHosts = new HashMap<>();
         List<String> possibleIps = new ArrayList<>();
         String hosts = node.get("ips").toString().replace("[","").replace("]","");
         for (String s : hosts.split(",")) {
@@ -256,8 +255,10 @@ public class JSON_Parser {
     public String parseUserAck (String sid,String username) throws IOException{
         JsonNode node = json.readTree(userAck.toFile());
         String jsonStr = node.toString();
-        jsonStr = jsonStr.replace("pl1",sid);
-        jsonStr = jsonStr.replace("pl2",username);
+        sid = "\"" + sid + "\"";
+        username = "\"" + username + "\"";
+        jsonStr = jsonStr.replace("\"pl1\"",sid);
+        jsonStr = jsonStr.replace("\"pl2\"",username);
         return jsonStr;
     }
 

@@ -145,7 +145,7 @@ public class GameClient extends ApplicationAdapter {
 				String password = password_field.getText();
 				if(!username.isEmpty() && !password.isEmpty()){
 					try {
-						Socket loginSocket = new Socket("localhost", 8001);
+						Socket loginSocket = new Socket("localhost", 8000);
 						br = new BufferedReader(new InputStreamReader(loginSocket.getInputStream()));
 						pw = new PrintWriter(loginSocket.getOutputStream(), true);
 						pw.println(json_parser.parseLoginToJSON(username, password));
@@ -166,9 +166,8 @@ public class GameClient extends ApplicationAdapter {
 								pw = new PrintWriter(socket.getOutputStream(),true);
 								pw.println(username);  // send name to server
 
-								json_communicator = new JsonCommunicator(sid);
-								possibleHosts = json_parser.parseHostAnnounce((String) json_communicator.receive());
-								out.println(possibleHosts);
+								json_communicator = new JsonCommunicator(sid, username);
+								possibleHosts = (ArrayList<String>) json_communicator.receive();
 								new MessagesThread().start();
 							} catch (UnknownHostException e) {
 								e.printStackTrace();

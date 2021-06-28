@@ -54,7 +54,6 @@ project(":core") {
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.2.0'
         implementation "com.strongjoshua:libgdx-inGameConsole:1.0.0"
         implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
         implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.11.3'

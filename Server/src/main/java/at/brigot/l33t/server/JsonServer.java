@@ -15,13 +15,23 @@ public class JsonServer {
     private Map<String, Node> nodes = new HashMap<>();
     private Map<String, UserThread> users = new HashMap<>();
 
-    public void startServer() throws IOException {
-        ServerSocket server = new ServerSocket(6969, 10);
+    public void startServer() {
+        ServerSocket server = null;
+        try {
+            server = new ServerSocket(6969, 10);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         System.out.println("server started on port 6969");
 
         while(true){
-            Socket client = server.accept();
-            UserThread user = new UserThread(client, this);
+            try{
+                Socket client = server.accept();
+                UserThread user = new UserThread(client, this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
 
         }
     }

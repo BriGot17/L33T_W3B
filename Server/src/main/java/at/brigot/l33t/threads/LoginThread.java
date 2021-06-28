@@ -24,33 +24,26 @@ public class LoginThread extends Thread {
     private DB_Access dba;
 
     public LoginThread(LoginServer server, Socket socket) throws IOException {
-        System.out.println("thats pretty good");
         this.server = server;
         this.socket = socket;
         input = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         output = new PrintWriter(this.socket.getOutputStream(), true);
         String line = input.readLine();
-        String lineForFuckingJavaSinceDoubleQuotesAreGayAndIFuckingHateMyself = line.replaceAll("\"", "");
-        System.out.println(line);
         json = JSONParser.getInstance();
         dba = DB_Access.getInstance();
 
-        System.out.println("you son of a bit im in");
         String jsonid = json.getJsonID(line).replace("\"", "");
-        System.out.println(jsonid);
         try {
             if (jsonid.equals("register")) {
                 output.println(json.parseRegisterToJSON(registerNewUser(line)));
                 output.flush();
             } else if (jsonid.equals("login")) {
                 output.println(json.parseAuthResponseToJSON(verifyLogin(line)));
-                System.out.println("validation done");
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        System.out.println("after if, fuck you if");
         this.server.removeThread(this);
     }
 
@@ -76,8 +69,7 @@ public class LoginThread extends Thread {
 
             try {
                 line = input.readLine();
-                System.out.println(line);
-                System.out.println("you son of a bit im in");
+
                 if(line.contains("json_id")){
                     Map<String, String> values = new HashMap<>();
                     String jsonid = json.getJsonID(line);

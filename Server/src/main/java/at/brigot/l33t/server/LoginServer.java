@@ -27,11 +27,10 @@ public class LoginServer {
 
     public void start(){
         try {
-            ServerSocket socket = new ServerSocket(8001, 10);
-            System.out.println("Loginserver started on port 8001");
+            ServerSocket socket = new ServerSocket(8000, 10);
+            System.out.println("Loginserver started on port 8000");
             while(true){
                 Socket client = socket.accept();
-                System.out.println("hey");
                 threads.add(new LoginThread(this, client));
             }
         } catch (IOException e) {
