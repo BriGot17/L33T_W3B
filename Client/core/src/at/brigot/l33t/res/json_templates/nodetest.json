@@ -10,7 +10,7 @@
       "lib" : {
         "test": "testing",
         "hello": "I am here",
-        "secret doc": "noice secret"
+        "secret_doc": "noice secret"
       }
     }
   }

@@ -2,28 +2,27 @@ package at.brigot.l33t;
 
 import at.brigot.l33t.beans.Node;
 import at.brigot.l33t.bl.GameCommandExecutor;
+import at.brigot.l33t.bl.JsonCommunicator;
 import at.brigot.l33t.io.JSON_Parser;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g3d.particles.emitters.Emitter;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
-import javafx.scene.control.Tab;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,10 +48,11 @@ public class GameClient extends ApplicationAdapter {
 	public String currentDir = "";
 	public String currentFile="";
 	public boolean connected = false;
-	private Map<String,String> possibleHosts = new HashMap<>();
+	private java.util.List<String> possibleHosts = new ArrayList<>();
 	private String username;
 
 	private JSON_Parser json_parser;
+	private JsonCommunicator json_communicator;
 
 	private InputStream socketInputStream;
 	PrintWriter pw;
@@ -153,7 +153,18 @@ public class GameClient extends ApplicationAdapter {
 						br = new BufferedReader( new InputStreamReader(socketInputStream));
 						pw = new PrintWriter(socket.getOutputStream(),true);
 						pw.println(username);  // send name to server
-
+						String response = br.readLine();
+						if(response.contains("json_id")){
+							String temp = json_parser.parseLoginResponseToString(response);
+							if(temp.split(":")[0].equals("denied")){
+								out.println("HELLO!!!");
+								return; // TODO
+							}
+							sid = temp.split(":")[1];
+						}
+						json_communicator = new JsonCommunicator(sid);
+						possibleHosts = json_parser.parseHostAnnounce((String) json_communicator.receive());
+						out.println(possibleHosts);
 						new MessagesThread().start();
 					} catch (UnknownHostException e) {
 						e.printStackTrace();
@@ -391,7 +402,7 @@ public class GameClient extends ApplicationAdapter {
 	public Node getFilesystem() {
 		return filesystem;
 	}
-	public Map<String, String> getPossibleHosts() {
+	public java.util.List<String> getPossibleHosts() {
 		return possibleHosts;
 	}
 	public String getUsername() {

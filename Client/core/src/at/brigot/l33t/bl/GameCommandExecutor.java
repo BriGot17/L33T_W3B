@@ -76,7 +76,7 @@ public class GameCommandExecutor extends CommandExecutor {
             client.currentFilesystem = client.getFilesystem();
             cd("root");
             client.connected = true;
-        }else if(client.getPossibleHosts().containsValue(param)){
+        }else if(client.getPossibleHosts().contains(param)){
             //Not yet implemented
         }else{
             console.log("Not an valid connection!", LogLevel.ERROR);
