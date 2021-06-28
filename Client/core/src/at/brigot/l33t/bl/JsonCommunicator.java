@@ -27,7 +27,7 @@ public class JsonCommunicator{
     public JsonCommunicator(String sid) throws IOException {
         this.sid = sid;
         json = JSON_Parser.getInstance();
-        socket = new Socket("localhost", 1337);
+        socket = new Socket("localhost", 6969);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         output = new PrintWriter(socket.getOutputStream());
     }

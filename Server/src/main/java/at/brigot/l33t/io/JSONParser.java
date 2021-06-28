@@ -96,12 +96,15 @@ public class JSONParser {
 
     public Map<String, String> parseAuthFromJSON(String rawJson, boolean isRegister) throws JsonProcessingException {
         JsonNode node = json.readTree(rawJson);
+
         Map<String, String> result = new HashMap<>();
-        result.put("user", node.get("user").toString());
+        System.out.println(node);
+        //System.out.println(result);
+        result.put("user", node.get("username").toString().replace("\"", ""));
         if(isRegister){
-            result.put("email", node.get("email").toString());
+            result.put("email", node.get("email").toString().replace("\"", ""));
         }
-        result.put("pwhash", node.get("pwhash").toString());
+        result.put("pwhash", node.get("pwhash").toString().replace("\"", ""));
         return result;
     }
 

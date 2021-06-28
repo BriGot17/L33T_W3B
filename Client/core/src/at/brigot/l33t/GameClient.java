@@ -61,7 +61,7 @@ public class GameClient extends ApplicationAdapter {
 	public GameClient() {
 		json_parser = JSON_Parser.getInstance();
 		filesystem = json_parser.getTestNode();
-		out.println(filesystem);
+		//out.println(filesystem);
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class GameClient extends ApplicationAdapter {
 		stage = new Stage(new ScreenViewport());
 		Gdx.input.setInputProcessor(stage);
 
-		out.println(filesystem);
+		//out.println(filesystem);
 
 		console = new GUIConsole();
 		console.setSizePercent(100, 33);
@@ -142,36 +142,46 @@ public class GameClient extends ApplicationAdapter {
 			public void changed(ChangeEvent event, Actor actor) {
 
 				username = name_field.getText();
-
-				if(!username.isEmpty()){
-					loginTable.setVisible(false);
-					chatRoomTable.setVisible(true);
-					currentTable = chatRoomTable;
+				String password = password_field.getText();
+				if(!username.isEmpty() && !password.isEmpty()){
 					try {
-						socket = new Socket("localhost",9999);
-						socketInputStream = socket.getInputStream();
-						br = new BufferedReader( new InputStreamReader(socketInputStream));
-						pw = new PrintWriter(socket.getOutputStream(),true);
-						pw.println(username);  // send name to server
-						String response = br.readLine();
-						if(response.contains("json_id")){
-							String temp = json_parser.parseLoginResponseToString(response);
-							if(temp.split(":")[0].equals("denied")){
-								out.println("HELLO!!!");
-								return; // TODO
+						Socket loginSocket = new Socket("localhost", 8001);
+						br = new BufferedReader(new InputStreamReader(loginSocket.getInputStream()));
+						pw = new PrintWriter(loginSocket.getOutputStream(), true);
+						pw.println(json_parser.parseLoginToJSON(username, password));
+
+						String res = br.readLine();
+						res = json_parser.parseLoginResponseToString(res);
+						loginSocket.close();
+						String[] resParts = res.split(":");
+						if(resParts[0].equals("success")){
+							sid = resParts[1];
+							loginTable.setVisible(false);
+							chatRoomTable.setVisible(true);
+							currentTable = chatRoomTable;
+							try {
+								socket = new Socket("localhost",9999);
+								socketInputStream = socket.getInputStream();
+								br = new BufferedReader( new InputStreamReader(socketInputStream));
+								pw = new PrintWriter(socket.getOutputStream(),true);
+								pw.println(username);  // send name to server
+
+								json_communicator = new JsonCommunicator(sid);
+								possibleHosts = json_parser.parseHostAnnounce((String) json_communicator.receive());
+								out.println(possibleHosts);
+								new MessagesThread().start();
+							} catch (UnknownHostException e) {
+								e.printStackTrace();
+							} catch (IOException e) {
+								e.printStackTrace();
 							}
-							sid = temp.split(":")[1];
 						}
-						json_communicator = new JsonCommunicator(sid);
-						possibleHosts = json_parser.parseHostAnnounce((String) json_communicator.receive());
-						out.println(possibleHosts);
-						new MessagesThread().start();
-					} catch (UnknownHostException e) {
-						e.printStackTrace();
+
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
+
 			}
 		});
 		return table;

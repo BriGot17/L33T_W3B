@@ -1,6 +1,5 @@
 {
     "json_id" : "pl1",
     "username": "pl2",
-    "email" : "pl3",
-    "pwhash" : "pl4"
+    "pwhash" : "pl3"
  }

@@ -23,6 +23,7 @@ public class JSON_Parser {
     //Paths for the JSON Templates
     private Path chatMessagePath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "chatmessage.json");
     private Path loginPath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "login.json");
+    private Path registerPath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "register.json");
     private Path nodeReqPath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "node_req.json");
     private Path nodePath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "node.json");
     private Path userAck = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "user_ack.json");
@@ -67,7 +68,6 @@ public class JSON_Parser {
 
         switch(jsonID){
             case "chatmessage":
-                System.out.println("I am here");
                 String user = node.get("user").toString();
                 if(!user.replace("\"", "").equals("json")){
                     return "mes_" + user + ">" + node.get("content").toString().replace("\"", "");
@@ -106,7 +106,7 @@ public class JSON_Parser {
                 usersconcat += ";";
         }
         usersconcat = usersconcat.replace("\"", "");
-        System.out.println(currentUsernamesInChat);
+        //System.out.println(currentUsernamesInChat);
 
         return usersconcat;
     }
@@ -118,14 +118,13 @@ public class JSON_Parser {
      * @return jsonStr -> the JSON String which is sent to the Server for Login
      * @throws IOException
      */
-    @Deprecated
+
     public String parseLoginToJSON(String user, String pwhash) throws IOException{
         JsonNode node = json.readTree(loginPath.toFile());
         String jsonStr = node.toString();
         jsonStr = jsonStr.replace("pl1","login"); //JsonID
         jsonStr = jsonStr.replace("pl2",user); //Username
-        jsonStr = jsonStr.replace("pl3",""); //E-Mail
-        jsonStr = jsonStr.replace("pl4",pwhash); //PwHash
+        jsonStr = jsonStr.replace("pl3",pwhash); //PwHash
         return jsonStr;
     }
 
@@ -138,9 +137,9 @@ public class JSON_Parser {
      * @return jsonStr -> the JSON String which is sent to the Server for Register
      * @throws IOException
      */
-    @Deprecated
+
     public String parseRegisterToJSON(String user,String email,String pwhash) throws IOException{
-        JsonNode node = json.readTree(loginPath.toFile());
+        JsonNode node = json.readTree(registerPath.toFile());
         String jsonStr = node.toString();
         jsonStr = jsonStr.replace("pl1","register"); //JsonID
         jsonStr = jsonStr.replace("pl2",user); //Username
@@ -155,7 +154,6 @@ public class JSON_Parser {
      * @return
      * @throws IOException
      */
-    @Deprecated
     public String parseLoginResponseToString(String response) throws IOException{
         JsonNode node = json.readTree(response);
         String sid = node.get("sid").asText();

@@ -48,4 +48,9 @@ public class JsonServer {
     public void addToNodes(Node newNode){
         nodes.put(newNode.getIp(), newNode);
     }
+
+    public static void main(String[] args) throws IOException {
+        JsonServer js = new JsonServer();
+        js.startServer();
+    }
 }

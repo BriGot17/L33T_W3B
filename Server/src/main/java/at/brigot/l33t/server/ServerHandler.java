@@ -12,7 +12,7 @@ public class ServerHandler {
         json = new JsonServer();
 
         try {
-            login.startServer();
+            login.start();
             chat.startServer();
             json.startServer();
         } catch (Exception e) {
