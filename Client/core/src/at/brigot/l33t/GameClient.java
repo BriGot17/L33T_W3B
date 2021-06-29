@@ -104,6 +104,11 @@ public class GameClient extends ApplicationAdapter {
 	private TextField name_field;
 	private TextField password_field;
 
+
+	/**
+	 * Building the Login Window using LibGDX
+	 * @return
+	 */
 	private Table buildLoginTable(){
 		final Table table = new Table();
 		table.setFillParent(true);
@@ -197,6 +202,10 @@ public class GameClient extends ApplicationAdapter {
 	private Label editor_label;
 	public TextArea editor_area;
 
+	/**
+	 * Building the Editor Window using LibGDX
+	 * @return
+	 */
 	private Table buildEditorTable(){
 		Table table = new Table();
 		table.setFillParent(true);
@@ -257,6 +266,10 @@ public class GameClient extends ApplicationAdapter {
 	private Label cat_label;
 	public TextArea cat_area;
 
+	/**
+	 * Building the CAT Window using LibGDX
+	 * @return
+	 */
 	private Table buildCATTable(){
 		Table table = new Table();
 		table.setFillParent(true);
@@ -297,6 +310,10 @@ public class GameClient extends ApplicationAdapter {
 	private ScrollPane scrollPane;
 	private String[] files = {"placeholder"};
 
+	/**
+	 * Building the Filesystem Window using LibGDX
+	 * @return
+	 */
 	private Table buildFileSystem(){
 		Table table = new Table();
 		table.setFillParent(true);
@@ -329,6 +346,10 @@ public class GameClient extends ApplicationAdapter {
 	private ScrollPane users_scroll;
 	private Label chat_label;
 
+	/**
+	 * Building the Chat Window using LibGDX
+	 * @return
+	 */
 	private Table buildChatRoomTable(){
 		Table table = new Table();
 		table.setFillParent(true);
@@ -387,6 +408,9 @@ public class GameClient extends ApplicationAdapter {
 		return table;
 	}
 
+	/**
+	 * For receiving chat messages and user updates for the chat
+	 */
 	class  MessagesThread extends Thread {
 		public void run() {
 			try {
