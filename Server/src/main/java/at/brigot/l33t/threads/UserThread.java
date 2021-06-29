@@ -43,6 +43,7 @@ public class UserThread extends Thread{
     public void sendNode(Node node, String requestingSID){
         try {
             output.println(json.parseNodeToJSON(node, requestingSID));
+            System.out.println(json.parseNodeToJSON(node, requestingSID));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,12 +66,13 @@ public class UserThread extends Thread{
                 line = input.readLine();
                 if(line.contains("json_id")){
                     String json_id = json.getJsonID(line);
-
+                    json_id = json_id.replace("\"","");
                     switch(json_id){
                         case "node_req":
                             Map<String, String> targetForUser = json.parseNodeRequestToMap(line);
-                            String sid = (String) targetForUser.keySet().toArray()[0];
-                            server.sendNodeToUser(sid, targetForUser.get(sid));
+                            String sid = (String) targetForUser.get("sid");
+                            String ip = (String) targetForUser.get("ip");
+                            server.sendNodeToUser(sid, ip);
                             break;
                         case "node_push":
                             Node node = json.parseNodeFromJSON(line);

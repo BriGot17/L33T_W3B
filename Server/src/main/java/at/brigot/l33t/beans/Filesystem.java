@@ -13,6 +13,7 @@ public class Filesystem {
     public Filesystem(JsonNode node){
         init();
         node = node.get("root");
+        System.out.println(node);
         if(node.get("att").isArray()){
             for (JsonNode n : node.get("att")) {
                 addAttack(n.asText());

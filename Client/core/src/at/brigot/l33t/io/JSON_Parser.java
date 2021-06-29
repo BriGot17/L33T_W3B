@@ -221,8 +221,8 @@ public class JSON_Parser {
     public String parseNodeRequestToJSON(String ip, String sid) throws IOException{
         JsonNode node = json.readTree(nodeReqPath.toFile());
         String jsonStr = node.toString();
-        jsonStr = jsonStr.replace("pl1",ip); //IP
-        jsonStr =jsonStr.replace("pl2",sid); //SID
+        jsonStr = jsonStr.replace("pl1",sid); //SID
+        jsonStr =jsonStr.replace("pl2",ip); //IP
         return jsonStr;
     }
 

@@ -1,6 +1,8 @@
 package at.brigot.l33t.bl;
 
 import at.brigot.l33t.GameClient;
+import at.brigot.l33t.beans.Filesystem;
+import at.brigot.l33t.beans.Node;
 import com.strongjoshua.console.CommandExecutor;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.LogLevel;
@@ -74,10 +76,20 @@ public class GameCommandExecutor extends CommandExecutor {
         if(param.equals("Local")){
             client.currentDir = "root";
             client.currentFilesystem = client.getFilesystem();
+            try {
+                System.out.println(client.getJson_parser().parseNodeToJSON(client.currentFilesystem, "dummy"));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             cd("root");
             client.connected = true;
         }else if(client.getPossibleHosts().contains(param)){
-            //Not yet implemented
+            client.getJson_communicator().sendNodeReq(param);
+            Node fs = (Node) client.getJson_communicator().receive();
+            System.out.println(fs);
+            client.currentFilesystem = fs;
+            cd("root");
+            client.connected = true;
         }else{
             console.log("Not an valid connection!", LogLevel.ERROR);
             return;

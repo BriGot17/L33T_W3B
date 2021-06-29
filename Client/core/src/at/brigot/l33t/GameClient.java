@@ -167,7 +167,10 @@ public class GameClient extends ApplicationAdapter {
 								pw.println(username);  // send name to server
 
 								json_communicator = new JsonCommunicator(sid, username);
-								possibleHosts = (ArrayList<String>) json_communicator.receive();
+								possibleHosts.add("1.1.1.1");
+								possibleHosts.add("2.2.2.2");
+								possibleHosts.add("3.3.3.3");
+								possibleHosts.add("4.4.4.4");
 								new MessagesThread().start();
 							} catch (UnknownHostException e) {
 								e.printStackTrace();
@@ -419,6 +422,9 @@ public class GameClient extends ApplicationAdapter {
 	}
 	public JSON_Parser getJson_parser() {
 		return json_parser;
+	}
+	public JsonCommunicator getJson_communicator() {
+		return json_communicator;
 	}
 	public Table getFileSystemTable() {
 		return fileSystemTable;

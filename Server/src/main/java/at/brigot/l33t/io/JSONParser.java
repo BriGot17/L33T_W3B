@@ -1,5 +1,6 @@
 package at.brigot.l33t.io;
 
+import at.brigot.l33t.beans.Filesystem;
 import at.brigot.l33t.beans.Node;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -94,6 +95,13 @@ public class JSONParser {
         return new Node(node);
     }
 
+    public Filesystem parseFilesystemFromJSON(String rawString) throws JsonProcessingException {
+        System.out.println(rawString);
+        JsonNode fs = json.readTree(rawString);
+        System.out.println(fs);
+        return new Filesystem(fs);
+    }
+
     public Map<String, String> parseAuthFromJSON(String rawJson, boolean isRegister) throws JsonProcessingException {
         JsonNode node = json.readTree(rawJson);
 
@@ -128,7 +136,6 @@ public class JSONParser {
 
             temp += ",\""+it.next()+"\"";
         }
-        System.out.println(temp);
         jsonStr = jsonStr.replace("\"pl4\"", temp);
         temp = "";
         it = node.getFilesystem().getDefenses().iterator();
@@ -137,7 +144,6 @@ public class JSONParser {
 
             temp += ",\""+it.next()+"\"";
         }
-        System.out.println(temp);
         jsonStr = jsonStr.replace("\"pl5\"", temp);
         jsonStr = jsonStr.replace("{\"pl6\":\"\"}", node.getFilesystem().getLib().toString().replace("=",":"));
         return jsonStr;

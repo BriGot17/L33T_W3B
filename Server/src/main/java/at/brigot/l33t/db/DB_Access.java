@@ -1,5 +1,6 @@
 package at.brigot.l33t.db;
 
+import at.brigot.l33t.beans.Node;
 import at.brigot.l33t.beans.User;
 
 import java.sql.PreparedStatement;
@@ -18,8 +19,12 @@ public class DB_Access {
     private DB_Database db;
     private String validateUserString = "SELECT * FROM public.\"User\" WHERE public.\"User\".\"Username\" = ? AND public.\"User\".\"pwhash\" = ?";
     private String insertUserString = "INSERT INTO public.\"User\" VALUES(?, ?, ?)";
+    private String insertNodeString = "INSERT INTO public.\"Host\" VALUES(?, ?, ?)";
+    private String getFileSystem = "SELECT filesystem FROM public.\"Host\" WHERE IP = ?";
     private PreparedStatement validateUser;
     private PreparedStatement insertUser;
+    private PreparedStatement insertNode;
+    private PreparedStatement getFilesystem;
 
     public static DB_Access getInstance() {
         if (dbInstance == null) {
@@ -39,6 +44,16 @@ public class DB_Access {
             System.out.println("An error occured while performing SQL operations");
             ex.printStackTrace();
         }
+    }
+
+    public void insertNode (String ip, String hostname, String filesystem) throws SQLException {
+        if(insertNode == null){
+            insertNode = db.getConnection().prepareStatement(insertNodeString);
+        }
+        insertNode.setString(1, ip);
+        insertNode.setString(2, hostname);
+        insertNode.setString(3, filesystem);
+        insertNode.execute();
     }
 
     public Boolean validateUserLogin(User attemptingUser) throws SQLException {

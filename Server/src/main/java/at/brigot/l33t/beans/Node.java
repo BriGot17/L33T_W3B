@@ -9,6 +9,13 @@ public class Node {
     private String ip;
     private Filesystem filesystem;
 
+    public Node(String sid, String hostname, String ip, Filesystem filesystem){
+        this.sid = sid;
+        this.hostname = hostname;
+        this.ip = ip;
+        this.filesystem = filesystem;
+    }
+
     public Node(JsonNode node){
         this.sid = node.get("sid").asText();
         this.hostname = node.get("hostname").asText();
