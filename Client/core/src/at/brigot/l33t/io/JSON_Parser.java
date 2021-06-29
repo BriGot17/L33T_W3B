@@ -96,10 +96,7 @@ public class JSON_Parser {
         while(nodeIterator.hasNext()){
             currentUsernamesInChat.add(nodeIterator.next().toString());
         }
-
         String usersconcat = "";
-
-
         for (int i = 0; i < currentUsernamesInChat.size(); i++){
             usersconcat += currentUsernamesInChat.get(i);
             if(i != currentUsernamesInChat.size()-1)
@@ -118,7 +115,6 @@ public class JSON_Parser {
      * @return jsonStr -> the JSON String which is sent to the Server for Login
      * @throws IOException
      */
-
     public String parseLoginToJSON(String user, String pwhash) throws IOException{
         JsonNode node = json.readTree(loginPath.toFile());
         String jsonStr = node.toString();
@@ -137,7 +133,6 @@ public class JSON_Parser {
      * @return jsonStr -> the JSON String which is sent to the Server for Register
      * @throws IOException
      */
-
     public String parseRegisterToJSON(String user,String email,String pwhash) throws IOException{
         JsonNode node = json.readTree(registerPath.toFile());
         String jsonStr = node.toString();
@@ -164,13 +159,9 @@ public class JSON_Parser {
 
     /**
      * Method for parsing a Node from a Json Node
-     * @param node -> the Node which will be parsed
+     * @param rawString -> the Node which will be parsed
      * @return
      */
-    public Node parseNodeFromJSON(JsonNode node){
-        return new Node(node);
-    }
-
     public Node parseNodeFromJSON(String rawString) throws JsonProcessingException {
         JsonNode node = json.readTree(rawString);
         return new Node(node);
@@ -240,6 +231,13 @@ public class JSON_Parser {
         }
         return possibleIps;
     }
+
+    /**
+     * Method for parsing host announcements into a list of strings
+     * @param rawString raw json string
+     * @return List of type String
+     * @throws JsonProcessingException
+     */
     public List<String> parseHostAnnounce(String rawString) throws JsonProcessingException {
         JsonNode node = json.readTree(rawString);
         List<String> possibleIps = new ArrayList<>();
@@ -251,7 +249,13 @@ public class JSON_Parser {
         return possibleIps;
     }
 
-
+    /**
+     * Parses sid and username into a user acknowledgement
+     * @param sid
+     * @param username
+     * @return String containing user acknowledgement in form of json
+     * @throws IOException
+     */
     public String parseUserAck (String sid,String username) throws IOException{
         JsonNode node = json.readTree(userAck.toFile());
         String jsonStr = node.toString();
@@ -262,11 +266,24 @@ public class JSON_Parser {
         return jsonStr;
     }
 
+    /**
+     * Returns json_id of specified raw json string
+     * @param rawString json string
+     * @return json_id property of json
+     * @throws JsonProcessingException
+     */
     public String getJsonID(String rawString) throws JsonProcessingException {
         JsonNode node = json.readTree(rawString);
         return node.get("json_id").toString();
     }
 
+    /**
+     * Compares a specified sid with the one within a json string
+     * @param rawString raw json object
+     * @param otherSID sid that should be compared with
+     * @return true or false
+     * @throws JsonProcessingException
+     */
     public Boolean compareSID(String rawString, String otherSID) throws JsonProcessingException {
         JsonNode node = json.readTree(rawString);
         return node.get("sid").toString().replace("\"", "") == otherSID;

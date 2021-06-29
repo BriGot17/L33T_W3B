@@ -14,6 +14,11 @@ public class GameCommandExecutor extends CommandExecutor {
     private Console console;
     private GameClient client;
 
+    /**
+     * Constructor for GameCommandExecutor when GCE is registered to the console
+     * @param console The console object it is registered to
+     * @param client The GameClient object for ui interaction
+     */
     public GameCommandExecutor(Console console, GameClient client){
         this.console = console;
         this.client = client;
@@ -56,10 +61,6 @@ public class GameCommandExecutor extends CommandExecutor {
         console.setVisible(false);
     }
 
-    public void portmap(){
-
-    }
-
     /**
      * Method for disconnecting from a file system
      */
@@ -70,6 +71,10 @@ public class GameCommandExecutor extends CommandExecutor {
         client.connected = false;
     }
 
+    /**
+     * Console command to connect to the local or an other filesystem
+     * @param param console params
+     */
     public void connect(String param){
         if(client.connected){
             console.log("It is not possible to connect to 2 Devices at once!", LogLevel.ERROR);
@@ -140,52 +145,5 @@ public class GameCommandExecutor extends CommandExecutor {
             default:
                 console.log("Directory not found!",LogLevel.ERROR);
         }
-    }
-
-    //copy and download
-    public void cpd(){
-
-    }
-
-    //download and delete
-    public void dad(){
-
-    }
-
-    public void FTPoline(){
-
-    }
-    public void webCry(){
-
-    }
-    public void RNGCaller(){
-
-    }
-    public void mailBreak(){
-
-    }
-    public void SQLShot(){
-
-    }
-    public void DNSKiller(){
-
-    }
-    public void FTPGuard(){
-
-    }
-    public void webSafe(){
-
-    }
-    public void telEncrypt(){
-
-    }
-    public void safeQuery(){
-
-    }
-    public void protNS(){
-
-    }
-    public void secureMail(){
-
     }
 }

@@ -136,7 +136,6 @@ public class JsonCommunicator{
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return result;
     }
 }
