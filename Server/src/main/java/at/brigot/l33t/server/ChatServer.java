@@ -8,6 +8,7 @@ import java.net.*;
 public class  ChatServer {
     List<String> users = new Vector<>();
     List<ClientThread> clients = new Vector<>();
+
     public void startServer() throws Exception  {
         ServerSocket server = new ServerSocket(9999,10);
         System.out.println("Chatserver started on port 9999");
@@ -33,7 +34,12 @@ public class  ChatServer {
             c.sendMessage(jsonMessage);
     }
 
-    public static void main(String ... args) throws Exception {
-        new ChatServer().startServer();
+    public static void main(String[] args) {
+        ChatServer cs = new ChatServer();
+        try {
+            cs.startServer();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

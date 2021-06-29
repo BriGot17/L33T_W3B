@@ -2,31 +2,32 @@ package at.brigot.l33t;
 
 import at.brigot.l33t.beans.Node;
 import at.brigot.l33t.bl.GameCommandExecutor;
+import at.brigot.l33t.bl.JsonCommunicator;
 import at.brigot.l33t.io.JSON_Parser;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g3d.particles.emitters.Emitter;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
-import javafx.scene.control.Tab;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.System.out;
+import static java.lang.System.setOut;
 
 public class GameClient extends ApplicationAdapter {
 	private Stage stage;
@@ -35,21 +36,33 @@ public class GameClient extends ApplicationAdapter {
 	private float gameWidth;
 	private float gameHeight;
 
-	private Table loginTable, chatRoomTable, fileSystemTable, commandLineTable;
+	private Table loginTable, chatRoomTable, fileSystemTable, CATTable, EditorTable;
+	public Table currentTable;
 	private Console console;
 
 	private Socket socket;
 	private String sid;
 
-	private Node Filesystem;
-	private Map<String,String> possibleHosts = new HashMap<>();
+	private Node filesystem;
+	public Node currentFilesystem = null;
+	public String currentDir = "";
+	public String currentFile="";
+	public boolean connected = false;
+	private java.util.List<String> possibleHosts = new ArrayList<>();
 	private String username;
 
 	private JSON_Parser json_parser;
+	private JsonCommunicator json_communicator;
 
 	private InputStream socketInputStream;
 	PrintWriter pw;
 	BufferedReader br;
+
+	public GameClient() {
+		json_parser = JSON_Parser.getInstance();
+		filesystem = json_parser.getTestNode();
+		//out.println(filesystem);
+	}
 
 	@Override
 	public void create () {
@@ -57,14 +70,14 @@ public class GameClient extends ApplicationAdapter {
 		stage = new Stage(new ScreenViewport());
 		Gdx.input.setInputProcessor(stage);
 
-		json_parser = JSON_Parser.getInstance();
+		//out.println(filesystem);
 
 		console = new GUIConsole();
 		console.setSizePercent(100, 33);
-		console.setPositionPercent(0, 67);
+		console.setPositionPercent(100, 0);
 		console.setDisplayKeyID(Input.Keys.Z);
 
-		console.setCommandExecutor(new GameCommandExecutor(console));
+		console.setCommandExecutor(new GameCommandExecutor(console,this));
 
 		gameWidth = stage.getWidth();
 		gameHeight = stage.getHeight();
@@ -72,12 +85,16 @@ public class GameClient extends ApplicationAdapter {
 		loginTable = buildLoginTable();
 		chatRoomTable = buildChatRoomTable();
 		fileSystemTable = buildFileSystem();
-		commandLineTable = buildCommandLine();
+		CATTable = buildCATTable();
+		EditorTable = buildEditorTable();
 
 		stage.addActor(loginTable);
 		stage.addActor(chatRoomTable);
 		stage.addActor(fileSystemTable);
-		stage.addActor(commandLineTable);
+		stage.addActor(CATTable);
+		stage.addActor(EditorTable);
+
+		currentTable = loginTable;
 	}
 
 	// login table actors
@@ -115,7 +132,8 @@ public class GameClient extends ApplicationAdapter {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				loginTable.setVisible(false);
-				commandLineTable.setVisible(true);
+				CATTable.setVisible(true);
+				currentTable = CATTable;
 			}
 		});
 
@@ -124,72 +142,149 @@ public class GameClient extends ApplicationAdapter {
 			public void changed(ChangeEvent event, Actor actor) {
 
 				username = name_field.getText();
-
-				if(!username.isEmpty()){
-					loginTable.setVisible(false);
-					chatRoomTable.setVisible(true);
-
+				String password = password_field.getText();
+				if(!username.isEmpty() && !password.isEmpty()){
 					try {
-						socket = new Socket("localhost",9999);
-						socketInputStream = socket.getInputStream();
-						br = new BufferedReader( new InputStreamReader(socketInputStream));
-						pw = new PrintWriter(socket.getOutputStream(),true);
-						pw.println(username);  // send name to server
+						Socket loginSocket = new Socket("192.168.43.202", 8000);
+						br = new BufferedReader(new InputStreamReader(loginSocket.getInputStream()));
+						pw = new PrintWriter(loginSocket.getOutputStream(), true);
+						pw.println(json_parser.parseLoginToJSON(username, password));
 
-						new MessagesThread().start();
-					} catch (UnknownHostException e) {
-						e.printStackTrace();
+						String res = br.readLine();
+						res = json_parser.parseLoginResponseToString(res);
+						loginSocket.close();
+						String[] resParts = res.split(":");
+						if(resParts[0].equals("success")){
+							sid = resParts[1];
+							loginTable.setVisible(false);
+							chatRoomTable.setVisible(true);
+							currentTable = chatRoomTable;
+							try {
+								socket = new Socket("192.168.43.202",9999);
+								socketInputStream = socket.getInputStream();
+								br = new BufferedReader( new InputStreamReader(socketInputStream));
+								pw = new PrintWriter(socket.getOutputStream(),true);
+								pw.println(username);  // send name to server
+
+								json_communicator = new JsonCommunicator(sid, username);
+								json_communicator.receive();
+								possibleHosts.add("1.1.1.1");
+								possibleHosts.add("2.2.2.2");
+								possibleHosts.add("3.3.3.3");
+								possibleHosts.add("4.4.4.4");
+								new MessagesThread().start();
+							} catch (UnknownHostException e) {
+								e.printStackTrace();
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
+
 			}
 		});
 		return table;
 	}
 
-	//Command Line table actors
+	//CAT table actors
 	private TextButton back_button;
+	private TextButton save_button;
+	private ScrollPane editor_scroll;
+	private Label editor_label;
+	public TextArea editor_area;
 
-	private ScrollPane command_scroll;
-	private Label command_label;
-	private TextArea command_area;
-
-	private Table buildCommandLine(){
+	private Table buildEditorTable(){
 		Table table = new Table();
 		table.setFillParent(true);
 
-		command_label = new Label("", skin);
-		command_label.setWrap(true);
-		command_label.setAlignment(Align.topLeft);
+		editor_label = new Label("", skin);
+		editor_label.setWrap(true);
+		editor_label.setAlignment(Align.topLeft);
 
-		command_scroll = new ScrollPane(command_label, skin);
-		command_scroll.setFadeScrollBars(false);
+		editor_scroll = new ScrollPane(editor_label, skin);
+		editor_scroll.setFadeScrollBars(false);
 
-		command_area = new TextArea(">",skin);
+		editor_area = new TextArea("",skin);
 
+		final Dialog dialog = new Dialog("Warning", skin, "dialog") {
+			public void result(Object obj) {
+				if((boolean)obj) {
+					currentFilesystem.getFilesystem().getLib().remove(currentFile);
+					currentFilesystem.getFilesystem().getLib().put(currentFile, editor_area.getText());
+				}
+			}
+		};
+		dialog.text("Are you sure you want to save?");
+		dialog.button("Yes", true); //sends "true" as the result
+		dialog.button("No", false);  //sends "false" as the result
 
-
-		//table.add(command_scroll).width(Gdx.graphics.getWidth()-100f).height(400f).colspan(1).center();
-		//table.row();
+		save_button = new TextButton("Save", skin);
+		save_button.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				dialog.show(stage);
+			}
+		});
 
 		back_button = new TextButton("Back", skin);
 		back_button.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				commandLineTable.setVisible(false);
-				loginTable.setVisible(true);
+				EditorTable.setVisible(false);
+				console.setVisible(true);
 			}
 		});
 
-		//table.add(back_button).colspan(2);
+		Group g = new Group();
+		g.addActor(back_button);
+		g.addActor(save_button);
+
+		table.add(editor_area).colspan(2).expand().fill().row();
+		table.add(back_button).colspan(1).expandX().fillX();
+		table.add(save_button).colspan(1).expandX().fillX();
+
+		table.setVisible(false);
+
+		return table;
+	}
+
+	//CAT table actors
+	private ScrollPane cat_scroll;
+	private Label cat_label;
+	public TextArea cat_area;
+
+	private Table buildCATTable(){
+		Table table = new Table();
+		table.setFillParent(true);
+
+		cat_label = new Label("", skin);
+		cat_label.setWrap(true);
+		cat_label.setAlignment(Align.topLeft);
+
+		cat_scroll = new ScrollPane(cat_label, skin);
+		cat_scroll.setFadeScrollBars(false);
+
+		cat_area = new TextArea("",skin);
+
+		cat_area.setDisabled(true);
+
+		back_button = new TextButton("Back", skin);
+		back_button.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				CATTable.setVisible(false);
+				console.setVisible(true);
+			}
+		});
 
 		table.row().colspan(2).expand();
-		table.add(command_area).fill();
+		table.add(cat_area).fill();
 		table.row().colspan(2).expandX().fillX();
 		table.add(back_button);
-
-		//table.add(commandInput_scroll).width(300f).colspan(2);
 
 		table.setVisible(false);
 
@@ -197,10 +292,10 @@ public class GameClient extends ApplicationAdapter {
 	}
 
 	// File System table actors
-
-	private List filelist;
+	public List filelist;
 	private List.ListStyle fileStyle;
 	private ScrollPane scrollPane;
+	private String[] files = {"placeholder"};
 
 	private Table buildFileSystem(){
 		Table table = new Table();
@@ -209,12 +304,6 @@ public class GameClient extends ApplicationAdapter {
 		filelist = new List(skin);
 		fileStyle = new List.ListStyle();
 
-		String[] files = new String[5];
-		files[0] = "test1";
-		files[1] = "test2";
-		files[2] = "test3";
-		files[3] = "test4";
-		files[4] = "test5";
 		filelist.setItems(files);
 
 		scrollPane = new ScrollPane(filelist);
@@ -231,7 +320,6 @@ public class GameClient extends ApplicationAdapter {
 	}
 
 	// chat room table actors
-
 	private TextButton send_button;
 	private TextArea message_field;
 	private ScrollPane input_scroll;
@@ -240,7 +328,6 @@ public class GameClient extends ApplicationAdapter {
 	private ScrollPane chat_scroll;
 	private ScrollPane users_scroll;
 	private Label chat_label;
-
 
 	private Table buildChatRoomTable(){
 		Table table = new Table();
@@ -324,6 +411,30 @@ public class GameClient extends ApplicationAdapter {
 	}
 	public void setSid(String sid) {
 		this.sid = sid;
+	}
+	public Node getFilesystem() {
+		return filesystem;
+	}
+	public java.util.List<String> getPossibleHosts() {
+		return possibleHosts;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public JSON_Parser getJson_parser() {
+		return json_parser;
+	}
+	public JsonCommunicator getJson_communicator() {
+		return json_communicator;
+	}
+	public Table getFileSystemTable() {
+		return fileSystemTable;
+	}
+	public Table getCATTable() {
+		return CATTable;
+	}
+	public Table getEditorTable() {
+		return EditorTable;
 	}
 
 	@Override

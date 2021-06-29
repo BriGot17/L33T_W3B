@@ -13,6 +13,7 @@ public class Filesystem {
     public Filesystem(JsonNode node){
         init();
         node = node.get("root");
+        System.out.println(node);
         if(node.get("att").isArray()){
             for (JsonNode n : node.get("att")) {
                 addAttack(n.asText());
@@ -23,7 +24,7 @@ public class Filesystem {
                 addDefense(n.asText());
             }
         }
-        String lib = node.get("lib").toString().replace("{","").replace("}","").replace("\"","");
+        String lib = node.get("lib").toString().replace("{","").replace("}","");
         for (String s : lib.split(",")) {
             addToLib(s.split(":")[0],s.split(":")[1]);
         }
@@ -53,10 +54,6 @@ public class Filesystem {
     }
     public HashMap getLib(){
         return (HashMap) root.get("lib");
-    }
-    public Object getDir(String dir){return root.get(dir);}
-    public Map<String, Object> getRoot() {
-        return root;
     }
 
     @Override

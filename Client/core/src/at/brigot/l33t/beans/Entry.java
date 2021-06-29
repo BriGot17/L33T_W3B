@@ -2,6 +2,7 @@ package at.brigot.l33t.beans;
 
 import java.util.List;
 
+@Deprecated
 public class Entry {
 
     String entryName;

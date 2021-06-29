@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,10 +20,13 @@ public class JSON_Parser {
     private ObjectMapper objectMapper;
     private JsonMapper json;
     private static JSON_Parser instance;
+    //Paths for the JSON Templates
     private Path chatMessagePath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "chatmessage.json");
     private Path loginPath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "login.json");
+    private Path registerPath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "register.json");
     private Path nodeReqPath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "node_req.json");
     private Path nodePath = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "node.json");
+    private Path userAck = Paths.get(System.getProperty("user.dir"),"core", "src", "at", "brigot", "l33t", "res","json_templates", "user_ack.json");
 
     public JSON_Parser() {
         this.objectMapper = new ObjectMapper();
@@ -39,6 +41,13 @@ public class JSON_Parser {
         return instance;
     }
 
+    /**
+     * Method to parse a Message to JSON to send to the Server
+     * @param user -> the Name of the User who wrote the message
+     * @param message -> the message of the user
+     * @return A Json String which will be send to the Server
+     * @throws IOException
+     */
     public String parseMessageToJSON(String user, String message) throws IOException {
         JsonNode node = json.readTree(chatMessagePath.toFile());
         String jsonStr = node.toString();
@@ -47,13 +56,18 @@ public class JSON_Parser {
         return jsonStr;
     }
 
-    public String parseMessageToString(String message) throws IOException {
-        JsonNode node = json.readTree(message);
+    /**
+     * Method for parsing a Json String to a message
+     * @param json_message -> the message in JSON Format
+     * @return a String with the message and the user to display
+     * @throws IOException
+     */
+    public String parseMessageToString(String json_message) throws IOException {
+        JsonNode node = json.readTree(json_message);
         String jsonID = node.get("json_id").toString().replace("\"", "");
 
         switch(jsonID){
             case "chatmessage":
-                System.out.println("I am here");
                 String user = node.get("user").toString();
                 if(!user.replace("\"", "").equals("json")){
                     return "mes_" + user + ">" + node.get("content").toString().replace("\"", "");
@@ -92,7 +106,7 @@ public class JSON_Parser {
                 usersconcat += ";";
         }
         usersconcat = usersconcat.replace("\"", "");
-        System.out.println(currentUsernamesInChat);
+        //System.out.println(currentUsernamesInChat);
 
         return usersconcat;
     }
@@ -104,15 +118,16 @@ public class JSON_Parser {
      * @return jsonStr -> the JSON String which is sent to the Server for Login
      * @throws IOException
      */
+
     public String parseLoginToJSON(String user, String pwhash) throws IOException{
         JsonNode node = json.readTree(loginPath.toFile());
         String jsonStr = node.toString();
         jsonStr = jsonStr.replace("pl1","login"); //JsonID
         jsonStr = jsonStr.replace("pl2",user); //Username
-        jsonStr = jsonStr.replace("pl3",""); //E-Mail
-        jsonStr = jsonStr.replace("pl4",pwhash); //PwHash
+        jsonStr = jsonStr.replace("pl3",pwhash); //PwHash
         return jsonStr;
     }
+
 
     /**
      * Method for parsing the Register information to JSON to send to the Server
@@ -122,8 +137,9 @@ public class JSON_Parser {
      * @return jsonStr -> the JSON String which is sent to the Server for Register
      * @throws IOException
      */
+
     public String parseRegisterToJSON(String user,String email,String pwhash) throws IOException{
-        JsonNode node = json.readTree(loginPath.toFile());
+        JsonNode node = json.readTree(registerPath.toFile());
         String jsonStr = node.toString();
         jsonStr = jsonStr.replace("pl1","register"); //JsonID
         jsonStr = jsonStr.replace("pl2",user); //Username
@@ -146,10 +162,26 @@ public class JSON_Parser {
         return Str;
     }
 
+    /**
+     * Method for parsing a Node from a Json Node
+     * @param node -> the Node which will be parsed
+     * @return
+     */
     public Node parseNodeFromJSON(JsonNode node){
         return new Node(node);
     }
 
+    public Node parseNodeFromJSON(String rawString) throws JsonProcessingException {
+        JsonNode node = json.readTree(rawString);
+        return new Node(node);
+    }
+    /**
+     * Method for parsing a Node to JSON to send to the Server
+     * @param node -> the Node which will be parsed
+     * @param sid -> the Session ID of the Client
+     * @return a JSON String
+     * @throws IOException
+     */
     public String parseNodeToJSON(Node node, String sid) throws IOException{
         JsonNode jn = json.readTree(nodePath.toFile());
         String jsonStr = jn.toString();
@@ -179,24 +211,89 @@ public class JSON_Parser {
         return jsonStr;
     }
 
+    /**
+     * Method for parsing the IP to an JSON to send to the Server
+     * @param ip -> the IP of the requested Node
+     * @param sid -> the Session ID of the Client
+     * @return a JSON String
+     * @throws IOException
+     */
     public String parseNodeRequestToJSON(String ip, String sid) throws IOException{
         JsonNode node = json.readTree(nodeReqPath.toFile());
         String jsonStr = node.toString();
-        jsonStr = jsonStr.replace("pl1",ip); //IP
-        jsonStr =jsonStr.replace("pl2",sid); //SID
+        jsonStr = jsonStr.replace("pl1",sid); //SID
+        jsonStr =jsonStr.replace("pl2",ip); //IP
         return jsonStr;
     }
 
-    public Map<String,String> parseHostAnnounce(JsonNode node){
-        Map<String,String> possibleHosts = new HashMap<>();
-        String hosts = node.get("hosts").toString().replace("[","").replace("]","");
+    /**
+     * Parses a JsonNode from the server to a Map of possible hosts.
+     * @param node the JsonNode we receive from the server
+     * @return a Map of possible Hosts
+     */
+    public List<String> parseHostAnnounce(JsonNode node){
+        List<String> possibleIps = new ArrayList<>();
+        String hosts = node.get("ips").toString().replace("[","").replace("]","");
         for (String s : hosts.split(",")) {
-            s = s.replace("{","").replace("}","").replace("\"","");
-            possibleHosts.put(s.split(":")[0],s.split(":")[1]);
+            s = s.replace("\"","");
+            possibleIps.add(s);
         }
-        return possibleHosts;
+        return possibleIps;
+    }
+    public List<String> parseHostAnnounce(String rawString) throws JsonProcessingException {
+        JsonNode node = json.readTree(rawString);
+        List<String> possibleIps = new ArrayList<>();
+        String hosts = node.get("ips").toString().replace("[","").replace("]","");
+        for (String s : hosts.split(",")) {
+            s = s.replace("\"","");
+            possibleIps.add(s);
+        }
+        return possibleIps;
     }
 
+
+    public String parseUserAck (String sid,String username) throws IOException{
+        JsonNode node = json.readTree(userAck.toFile());
+        String jsonStr = node.toString();
+        sid = "\"" + sid + "\"";
+        username = "\"" + username + "\"";
+        jsonStr = jsonStr.replace("\"pl1\"",sid);
+        jsonStr = jsonStr.replace("\"pl2\"",username);
+        return jsonStr;
+    }
+
+    public String getJsonID(String rawString) throws JsonProcessingException {
+        JsonNode node = json.readTree(rawString);
+        return node.get("json_id").toString();
+    }
+
+    public Boolean compareSID(String rawString, String otherSID) throws JsonProcessingException {
+        JsonNode node = json.readTree(rawString);
+        return node.get("sid").toString().replace("\"", "") == otherSID;
+    }
+
+    /**
+     * This is a Test Method
+     * @return A pre defined Node to test things
+     */
+    public Node getTestNode(){
+        Node test = null;
+        JsonNode node = null;
+        JsonMapper mapper = new JsonMapper();
+        try {
+            node = mapper.readTree(Paths.get(System.getProperty("user.dir"), "core", "src", "at", "brigot", "l33t", "res", "json_templates", "nodetest.json").toFile());
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        test = new Node(node);
+        return test;
+    }
+
+
+    /**
+     * The Main is only being used for testing the JSON_Parser
+     * @param args
+     */
     public static void main(String[] args) {
         JsonMapper mapper = new JsonMapper();
         JsonNode node = null;

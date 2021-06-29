@@ -4,7 +4,6 @@ public class User {
     private String username;
     private String email;
     private String passwordHash;
-    private Host host;
 
     public User() {
     }
@@ -13,7 +12,6 @@ public class User {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
-        host = null;
     }
 
     public User(String username, String passwordHash) {

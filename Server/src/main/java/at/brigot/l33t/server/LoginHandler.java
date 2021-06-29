@@ -42,8 +42,7 @@ public class LoginHandler implements HttpHandler {
     private void handleResponse(HttpExchange httpExchange, User attemptingUser)  throws  IOException {
         OutputStream outputStream = httpExchange.getResponseBody();
         boolean response = false;
-        //Database authentication not yet implemented
-        //Temporarily, a primitive authentication is used
+
         try {
             if(dba.validateUserLogin(attemptingUser)){
                 response = true;
