@@ -62,7 +62,7 @@ public class DB_Database {
     }
             
     public void loadProperties() {
-        dbUrl ="jdbc:postgresql://localhost:5432/LeetWeb";
+        dbUrl ="jdbc:postgresql://localhost:5432/L33TW3B";
         dbDriver = "org.postgresql.Driver";
         dbUsername = "postgres";
         dbPassword = "postgres";

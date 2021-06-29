@@ -27,7 +27,7 @@ public class JsonCommunicator{
     public JsonCommunicator(String sid, String username) throws IOException {
         this.sid = sid;
         json = JSON_Parser.getInstance();
-        socket = new Socket("localhost", 6969);
+        socket = new Socket("192.168.43.202", 6969);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         output = new PrintWriter(socket.getOutputStream(), true);
         output.println(json.parseUserAck(sid, username));
@@ -69,6 +69,7 @@ public class JsonCommunicator{
      */
     private Node receiveNode(String message){
         try {
+            System.out.println("things are doing things");
             return json.parseNodeFromJSON(message);
         } catch (JsonProcessingException e) {
             System.out.println("Error parsing node from JSON - returning null");
@@ -107,15 +108,21 @@ public class JsonCommunicator{
      */
     public Object receive() {
         String line = "";
+        System.out.println("i am here");
         Object result = null;
             try {
             line = input.readLine();
+            System.out.println(line);
             if(line.contains("json_id")){
+                line = line.replace("\"\"", "\"");
                 switch(json.getJsonID(line)){
                     case "\"node_push\"":
+                        System.out.println("got it");
                         if(!json.compareSID(line, sid)){
-                            return null;
+                            System.out.println("hell nah");
+                            //return null;
                         }
+
                         result = receiveNode(line);
                         break;
                     case "\"host_announcement\"":

@@ -269,7 +269,7 @@ public class JSON_Parser {
 
     public Boolean compareSID(String rawString, String otherSID) throws JsonProcessingException {
         JsonNode node = json.readTree(rawString);
-        return node.get("sid").toString() == otherSID;
+        return node.get("sid").toString().replace("\"", "") == otherSID;
     }
 
     /**

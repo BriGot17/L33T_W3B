@@ -145,7 +145,7 @@ public class GameClient extends ApplicationAdapter {
 				String password = password_field.getText();
 				if(!username.isEmpty() && !password.isEmpty()){
 					try {
-						Socket loginSocket = new Socket("localhost", 8000);
+						Socket loginSocket = new Socket("192.168.43.202", 8000);
 						br = new BufferedReader(new InputStreamReader(loginSocket.getInputStream()));
 						pw = new PrintWriter(loginSocket.getOutputStream(), true);
 						pw.println(json_parser.parseLoginToJSON(username, password));
@@ -160,13 +160,14 @@ public class GameClient extends ApplicationAdapter {
 							chatRoomTable.setVisible(true);
 							currentTable = chatRoomTable;
 							try {
-								socket = new Socket("localhost",9999);
+								socket = new Socket("192.168.43.202",9999);
 								socketInputStream = socket.getInputStream();
 								br = new BufferedReader( new InputStreamReader(socketInputStream));
 								pw = new PrintWriter(socket.getOutputStream(),true);
 								pw.println(username);  // send name to server
 
 								json_communicator = new JsonCommunicator(sid, username);
+								json_communicator.receive();
 								possibleHosts.add("1.1.1.1");
 								possibleHosts.add("2.2.2.2");
 								possibleHosts.add("3.3.3.3");

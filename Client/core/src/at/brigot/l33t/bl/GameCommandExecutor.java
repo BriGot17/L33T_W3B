@@ -7,6 +7,8 @@ import com.strongjoshua.console.CommandExecutor;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.LogLevel;
 
+import java.util.Locale;
+
 public class GameCommandExecutor extends CommandExecutor {
 
     private Console console;
@@ -73,7 +75,7 @@ public class GameCommandExecutor extends CommandExecutor {
             console.log("It is not possible to connect to 2 Devices at once!", LogLevel.ERROR);
             return;
         }
-        if(param.equals("Local")){
+        if(param.equals("local")){
             client.currentDir = "root";
             client.currentFilesystem = client.getFilesystem();
             try {
@@ -86,7 +88,8 @@ public class GameCommandExecutor extends CommandExecutor {
         }else if(client.getPossibleHosts().contains(param)){
             client.getJson_communicator().sendNodeReq(param);
             Node fs = (Node) client.getJson_communicator().receive();
-            System.out.println(fs);
+            System.out.println(fs + "< filesystem");
+
             client.currentFilesystem = fs;
             cd("root");
             client.connected = true;
